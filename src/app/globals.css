@@ -1,26 +1,67 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* Canvas + text */
+  --color-canvas: #0A0A0A;
+  --color-canvas-elevated: #141414;
+  --color-fg: #F5F5F0;
+  --color-fg-muted: #A8A8A0;
+  --color-divider: #2A2A2A;
+
+  /* Industrial accents */
+  --color-concrete: #3D3D3D;
+  --color-steel: #1F1F1F;
+
+  /* HYROX yellow — owned brand accent */
+  --color-accent: #FCDB1A;
+  --color-accent-warm: #E6C300;
+
+  /* Signal red — urgency pops only */
+  --color-signal: #E63946;
+
+  /* Typography */
+  --font-display: var(--font-display-loaded), "Tobias", "Times New Roman", serif;
+  --font-mono: var(--font-mono-loaded), ui-monospace, monospace;
+  --font-body: var(--font-body-loaded), "Söhne", system-ui, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+html,
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-canvas);
+  color: var(--color-fg);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Lenis required reset */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+
+/* Italic display utility — the signature */
+.display-italic {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.04em;
+  line-height: 0.88;
+}
+
+/* Tactical mono utility */
+.tactical {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
 }
