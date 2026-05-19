@@ -113,7 +113,7 @@ function CoachEclipse({ data, zIndex }: { data: CoachData; zIndex: number }) {
       style={{ zIndex }}
     >
       <motion.section
-        className="relative min-h-[400vh] overflow-hidden bg-canvas"
+        className="relative min-h-[300vh] overflow-hidden bg-canvas"
         style={{
           y: reducedMotion || isMobile ? 0 : slideY,
         }}
@@ -142,7 +142,7 @@ function CoachEclipse({ data, zIndex }: { data: CoachData; zIndex: number }) {
         </div>
 
         {/* Main content grid */}
-        <div className="sticky top-0 flex h-screen items-center px-6 py-24 md:px-12 md:py-32">
+        <div className="sticky top-0 flex h-screen items-center px-6 py-12 md:px-12 md:py-16">
           <div className="mx-auto grid w-full max-w-[1400px] grid-cols-1 items-center gap-8 md:grid-cols-12 md:gap-12">
             {/* Portrait column */}
             <motion.div

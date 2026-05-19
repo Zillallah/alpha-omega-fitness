@@ -87,7 +87,7 @@ export default function Manifesto() {
     <section
       ref={sectionRef}
       id="manifesto"
-      className="relative z-10 min-h-screen bg-canvas md:min-h-[400vh]"
+      className="relative z-10 min-h-screen bg-canvas md:min-h-[300vh]"
     >
       {/* Sticky frame */}
       <div className="sticky top-0 h-screen w-full overflow-hidden">
