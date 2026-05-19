@@ -43,9 +43,8 @@ export default function Manifesto() {
     <section
       ref={sectionRef}
       id="manifesto"
-      className="relative min-h-screen md:min-h-[200vh] overflow-hidden bg-canvas"
+      className="relative flex min-h-screen items-center overflow-hidden bg-canvas py-20 md:py-0"
     >
-      <div className="sticky top-0 flex h-screen w-full items-center">
         {/* Section number — top-right */}
         <div className="absolute right-4 top-4 hidden items-center gap-2.5 sm:flex md:right-12 md:top-8">
           <span aria-hidden="true" className="h-px w-7 bg-fg-muted" />
@@ -214,7 +213,6 @@ export default function Manifesto() {
             </motion.div>
           </div>
         </div>
-      </div>
     </section>
   );
 }

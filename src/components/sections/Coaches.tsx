@@ -104,7 +104,7 @@ export default function Coaches() {
     <section
       ref={sectionRef}
       id="coaches"
-      className="relative min-h-screen overflow-hidden bg-canvas md:min-h-[240vh]"
+      className="relative min-h-screen overflow-hidden bg-canvas md:min-h-[180vh]"
     >
       {/* Section number — top-right, persistent */}
       <div className="absolute right-4 top-4 z-20 flex items-center gap-2.5 md:right-12 md:top-8">
@@ -206,11 +206,11 @@ function CoachBlock({
 
         {/* Italic display name */}
         <h2
-          className="font-medium text-fg"
+          className="mt-6 font-medium text-fg md:mt-8"
           style={{
             fontFamily: "var(--font-display)",
             fontStyle: "italic",
-            fontSize: "clamp(4rem, 10vw, 8rem)",
+            fontSize: "clamp(3rem, 8vw, 6rem)",
             letterSpacing: "-0.04em",
             lineHeight: 0.92,
           }}
@@ -225,10 +225,10 @@ function CoachBlock({
                   : { opacity: 0, x: line.vector.x, y: line.vector.y }
               }
               whileInView={{ opacity: 1, x: 0, y: 0 }}
-              viewport={{ once: true, margin: "-150px" }}
+              viewport={{ once: true, margin: "100px" }}
               transition={{
                 duration: 1.0,
-                delay: reducedMotion ? 0 : i * 0.12,
+                delay: reducedMotion ? 0 : i * 0.08,
                 ease: REVEAL_EASE,
               }}
             >
@@ -242,8 +242,8 @@ function CoachBlock({
           className="mt-8 max-w-[44ch] text-base leading-relaxed text-fg md:text-lg"
           initial={reducedMotion ? false : { opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8, delay: reducedMotion ? 0 : 0.4 }}
+          viewport={{ once: true, margin: "100px" }}
+          transition={{ duration: 0.8, delay: reducedMotion ? 0 : 0 }}
         >
           {data.bio}
         </motion.p>
@@ -253,8 +253,8 @@ function CoachBlock({
           className="my-10 max-w-[26ch] border-l-2 border-accent pl-5"
           initial={reducedMotion ? false : { opacity: 0, x: -20 }}
           whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8, delay: reducedMotion ? 0 : 0.6 }}
+          viewport={{ once: true, margin: "100px" }}
+          transition={{ duration: 0.8, delay: reducedMotion ? 0 : 0.1 }}
         >
           <blockquote
             className="text-2xl leading-tight text-fg-muted md:text-3xl"
@@ -277,10 +277,10 @@ function CoachBlock({
               key={i}
               initial={reducedMotion ? false : { opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
+              viewport={{ once: true, margin: "100px" }}
               transition={{
                 duration: 0.7,
-                delay: reducedMotion ? 0 : 0.8 + i * 0.1,
+                delay: reducedMotion ? 0 : 0.3 + i * 0.1,
               }}
             >
               <div className="mb-3 font-mono text-[10px] uppercase tracking-[0.2em] text-fg-muted md:text-xs">
@@ -329,7 +329,7 @@ function CoachPortrait({
       className="relative aspect-[4/5] overflow-hidden border border-fg/15 bg-canvas-elevated will-change-transform"
       initial={cinematic ? { opacity: 0, y: 60 } : false}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
+      viewport={{ once: true, margin: "100px" }}
       transition={{ duration: 1.0, ease: REVEAL_EASE }}
       style={{ y: cinematic ? y : 0 }}
     >

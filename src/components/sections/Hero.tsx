@@ -208,6 +208,16 @@ export default function Hero() {
     [1, 0.3]
   );
 
+  // Lower-left content (sub-deck, GPS, CTA) reveals only as the H1
+  // begins its transformation toward the sticky-corner badge — keeps
+  // the H1 visually dominant before, surfaces the read-and-act layer after.
+  const lowerContentOpacity = useTransform(
+    scrollYProgress,
+    [0.5, 0.65],
+    [0, 1]
+  );
+  const lowerContentY = useTransform(scrollYProgress, [0.5, 0.65], [20, 0]);
+
   /* ---- Per-layer photo transforms — declared at top level, one per layer ---- */
 
   const l1Y = useTransform(scrollYProgress, [0, 1], LAYERS[0].yRange);
@@ -419,14 +429,12 @@ export default function Hero() {
           </h1>
         </motion.div>
 
-        {/* --- (f) Sub-deck --- */}
+        {/* --- (f) Sub-deck — reveals on scroll as H1 transforms away --- */}
         <motion.p
-          className="absolute bottom-[28%] left-6 max-w-[380px] text-base leading-relaxed text-fg-muted md:left-12 md:text-lg"
-          initial={reducedMotion ? { opacity: 1 } : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{
-            delay: reducedMotion ? 0 : 1.6,
-            duration: reducedMotion ? 0.4 : 0.8,
+          className="absolute bottom-[28%] left-6 z-30 max-w-[380px] text-base leading-relaxed text-fg-muted md:left-12 md:text-lg"
+          style={{
+            opacity: reducedMotion ? 1 : lowerContentOpacity,
+            y: reducedMotion ? 0 : lowerContentY,
           }}
         >
           Boot camp coaching with Vince and Elena in Victorville. Beginners
@@ -435,12 +443,10 @@ export default function Hero() {
 
         {/* --- (g) GPS coordinates --- */}
         <motion.div
-          className="absolute bottom-[22%] left-6 hidden font-mono text-xs uppercase tracking-[0.22em] text-concrete sm:block md:left-12"
-          initial={reducedMotion ? { opacity: 1 } : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{
-            delay: reducedMotion ? 0 : 1.8,
-            duration: reducedMotion ? 0.4 : 0.8,
+          className="absolute bottom-[22%] left-6 z-30 hidden font-mono text-xs uppercase tracking-[0.22em] text-concrete sm:block md:left-12"
+          style={{
+            opacity: reducedMotion ? 1 : lowerContentOpacity,
+            y: reducedMotion ? 0 : lowerContentY,
           }}
         >
           — 34.5362°N · 117.2906°W
@@ -448,12 +454,10 @@ export default function Hero() {
 
         {/* --- (h) CTA row --- */}
         <motion.div
-          className="absolute bottom-[12%] left-6 flex items-center gap-4 md:left-12"
-          initial={reducedMotion ? { opacity: 1 } : { opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            delay: reducedMotion ? 0 : 2.0,
-            duration: reducedMotion ? 0.4 : 0.6,
+          className="absolute bottom-[12%] left-6 z-30 flex items-center gap-4 md:left-12"
+          style={{
+            opacity: reducedMotion ? 1 : lowerContentOpacity,
+            y: reducedMotion ? 0 : lowerContentY,
           }}
         >
           <a
