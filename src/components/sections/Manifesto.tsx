@@ -55,14 +55,13 @@ export default function Manifesto() {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            video.currentTime = 0;
             video.play().catch(() => {});
           } else {
             video.pause();
           }
         });
       },
-      { threshold: 0 }
+      { threshold: 0.05 }
     );
 
     observer.observe(section);
@@ -76,7 +75,7 @@ export default function Manifesto() {
       className="relative z-10 min-h-screen overflow-hidden bg-canvas md:min-h-[300vh]"
     >
       {/* Sticky cinema frame — pins centered for the full section duration */}
-      <div className="sticky top-0 flex h-screen w-full items-center justify-center overflow-hidden">
+      <div className="sticky top-0 flex h-screen w-full items-end justify-center overflow-hidden pb-20 md:pb-28">
         {/* Background canvas */}
         <div aria-hidden="true" className="absolute inset-0 bg-canvas" />
 
