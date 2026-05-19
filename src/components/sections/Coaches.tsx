@@ -153,7 +153,7 @@ function CoachEclipse({ data, zIndex }: { data: CoachData; zIndex: number }) {
             >
               <div
                 className="relative w-full overflow-hidden border border-fg/15 bg-canvas-elevated"
-                style={{ aspectRatio: "4 / 5", minHeight: "500px" }}
+                style={{ aspectRatio: "4 / 5" }}
               >
                 <Image
                   src={data.portraitSrc}

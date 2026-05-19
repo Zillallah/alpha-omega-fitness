@@ -72,10 +72,10 @@ export default function Manifesto() {
     <section
       ref={sectionRef}
       id="manifesto"
-      className="relative z-10 min-h-screen overflow-hidden bg-canvas md:min-h-[300vh]"
+      className="relative z-10 min-h-screen overflow-hidden bg-canvas md:min-h-[500vh]"
     >
       {/* Sticky cinema frame — pins centered for the full section duration */}
-      <div className="sticky top-0 flex h-screen w-full items-end justify-center overflow-hidden pb-20 md:pb-28">
+      <div className="sticky top-0 flex h-screen w-full items-center justify-center overflow-hidden pt-[20vh]">
         {/* Background canvas */}
         <div aria-hidden="true" className="absolute inset-0 bg-canvas" />
 
