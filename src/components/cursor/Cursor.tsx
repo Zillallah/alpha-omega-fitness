@@ -5,8 +5,8 @@ import { useEffect, useRef, useState } from "react";
 type Variant = "default" | "photo" | "button";
 
 /**
- * Custom desktop cursor — yellow crosshair, live coordinates, lerp follow.
- * - Default: 24x24 crosshair + live X/Y coords
+ * Custom desktop cursor — yellow crosshair, lerp follow.
+ * - Default: 24x24 crosshair, no label
  * - Hover [data-cursor="photo"]: expands to 48x48, displays data-photo-label
  * - Hover a / button / [role="button"]: arrow shape + "→ CLICK"
  * - Hidden on touch, reduced-motion, and before first mousemove
@@ -20,7 +20,6 @@ export default function Cursor() {
   const [visible, setVisible] = useState(false);
   const [variant, setVariant] = useState<Variant>("default");
   const [photoLabel, setPhotoLabel] = useState("");
-  const [coords, setCoords] = useState({ x: 0, y: 0 });
   const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
@@ -62,8 +61,7 @@ export default function Cursor() {
 
     window.addEventListener("mousemove", handleMove);
 
-    let lastCoordTick = 0;
-    const animate = (time: number) => {
+    const animate = () => {
       const lerp = 0.18;
       current.current.x += (target.current.x - current.current.x) * lerp;
       current.current.y += (target.current.y - current.current.y) * lerp;
@@ -76,12 +74,6 @@ export default function Cursor() {
       }
       if (labelRef.current) {
         labelRef.current.style.transform = `translate3d(${x + 18}px, ${y + 18}px, 0)`;
-      }
-
-      // ~30fps coordinate text updates (cheap)
-      if (time - lastCoordTick > 33) {
-        setCoords({ x: Math.round(x), y: Math.round(y) });
-        lastCoordTick = time;
       }
 
       rafId.current = requestAnimationFrame(animate);
@@ -99,11 +91,8 @@ export default function Cursor() {
   const opacity = visible ? 1 : 0;
   const isPhoto = variant === "photo";
   const isButton = variant === "button";
-  const labelText = isPhoto
-    ? photoLabel
-    : isButton
-      ? "→ CLICK"
-      : `X: ${coords.x} · Y: ${coords.y}`;
+  const labelText = isPhoto ? photoLabel : isButton ? "→ CLICK" : "";
+  const showLabel = labelText.length > 0;
 
   return (
     <>
@@ -114,7 +103,6 @@ export default function Cursor() {
         style={{ opacity, transition: "opacity 180ms ease" }}
       >
         {isButton ? (
-          // Arrow shape
           <svg
             width="22"
             height="22"
@@ -134,7 +122,6 @@ export default function Cursor() {
             />
           </svg>
         ) : (
-          // Crosshair — two perpendicular lines, sized by variant
           <div
             className="relative"
             style={{
@@ -169,7 +156,7 @@ export default function Cursor() {
         aria-hidden="true"
         className="pointer-events-none fixed left-0 top-0 z-[9999] whitespace-nowrap"
         style={{
-          opacity,
+          opacity: visible && showLabel ? 1 : 0,
           transition: "opacity 180ms ease",
           fontFamily: "var(--font-mono)",
           fontSize: "11px",
