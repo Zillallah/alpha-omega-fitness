@@ -1,473 +1,179 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import {
-  motion,
-  useMotionValueEvent,
-  useScroll,
-  useSpring,
-  useTransform,
-} from "framer-motion";
+import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
-/**
- * Manifesto — Batch 2.4 / section 002.
- * Four-act sticky cinematic. Video fills the entire viewport (full-bleed)
- * during Acts II–IV. CornerBrackets anchor to viewport corners, not the
- * scaling video. Video is scrubbed by scroll position (no play loop).
- *
- * Acts (across 200vh of scroll):
- *   I   0.00 → 0.20 — video scales 0.4 → 1.0, fades in
- *   II  0.20 → 0.45 — video scrubs through its 8s sequence; Statement 1
- *   III 0.45 → 0.85 — video holds on last frame; Statements 2/3 crossfade
- *   IV  0.85 → 1.00 — yellow exit rule + "003 / WHO WE ARE →" pointer;
- *                     Statement 4 ("Show up. We handle the rest.")
- *
- * Mobile: vertical stack of all four statements with autoplay-once video.
- */
 export default function Manifesto() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
   const [reducedMotion, setReducedMotion] = useState(false);
-  const [videoFailed, setVideoFailed] = useState(false);
 
   useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReducedMotion(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
+    setReducedMotion(
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    );
   }, []);
 
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start start", "end end"],
-  });
-  const smooth = useSpring(scrollYProgress, { stiffness: 80, damping: 25 });
-
-  /* ---- Act I — video approach (0 → 0.20) ---- */
-  const videoScale = useTransform(smooth, [0, 0.2], [0.4, 1.0]);
-  const videoOpacity = useTransform(smooth, [0, 0.1], [0, 1]);
-
-  /* ---- Dark overlay — gradual increase keeps type readable ---- */
-  const videoOverlayOpacity = useTransform(
-    smooth,
-    [0.25, 0.5, 0.85],
-    [0, 0.4, 0.55]
-  );
-
-  /* ---- Corner brackets reveal — viewport-anchored, fade in late Act I ---- */
-  const bracketsOpacity = useTransform(smooth, [0.2, 0.3], [0, 1]);
-
-  /* ---- Act II — Statement 1 (This isn't a gym.) ---- */
-  const s1Opacity = useTransform(
-    smooth,
-    [0.25, 0.32, 0.42, 0.48],
-    [0, 1, 1, 0]
-  );
-  const s1Y = useTransform(smooth, [0.25, 0.32], [60, 0]);
-  const s1StrikeScaleX = useTransform(smooth, [0.32, 0.42], [0, 1]);
-
-  /* ---- Act III a — Statement 2 (It's a system.) ---- */
-  const s2Opacity = useTransform(
-    smooth,
-    [0.48, 0.54, 0.62, 0.68],
-    [0, 1, 1, 0]
-  );
-  const s2Y = useTransform(smooth, [0.48, 0.54], [40, 0]);
-  const s2StrikeScaleX = useTransform(smooth, [0.54, 0.62], [0, 1]);
-
-  /* ---- Act III b — Statement 3 (Built for every body.) ---- */
-  const s3Opacity = useTransform(
-    smooth,
-    [0.65, 0.71, 0.78, 0.84],
-    [0, 1, 1, 0]
-  );
-  const s3Y = useTransform(smooth, [0.65, 0.71], [40, 0]);
-
-  /* ---- Act IV — Statement 4 (Show up. We handle the rest.) ---- */
-  const s4Opacity = useTransform(
-    smooth,
-    [0.82, 0.88, 0.94, 1.0],
-    [0, 1, 1, 0]
-  );
-  const s4Y = useTransform(smooth, [0.82, 0.88], [40, 0]);
-
-  /* ---- Tactical metadata reveal ---- */
-  const metadataOpacity = useTransform(smooth, [0.4, 0.5], [0, 1]);
-
-  /* ---- Act IV exit ---- */
-  const exitRuleScaleX = useTransform(smooth, [0.92, 0.98], [0, 1]);
-  const exitTextOpacity = useTransform(smooth, [0.95, 1.0], [0, 1]);
-
-  /* ---- True scroll-bound video scrub.
-     No play() — currentTime is driven directly by scroll position so
-     video advances forward, backward, or stops in sync with the user. */
-  useMotionValueEvent(smooth, "change", (latest) => {
-    const v = videoRef.current;
-    if (!v || reducedMotion || videoFailed) return;
-    if (!v.paused) v.pause();
-    if (!Number.isFinite(v.duration) || v.duration <= 0) return;
-
-    const end = v.duration - 0.1;
-
-    if (latest < 0.2) {
-      v.currentTime = 0;
-    } else if (latest >= 0.2 && latest <= 0.45) {
-      const t = (latest - 0.2) / 0.25;
-      v.currentTime = Math.max(0, Math.min(t * end, end));
-    } else {
-      v.currentTime = Math.max(0, v.duration - 0.05);
-    }
+  const fadeUp = (delay: number = 0) => ({
+    initial: reducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, margin: "-100px" },
+    transition: { duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] as const },
   });
 
   return (
     <section
-      ref={sectionRef}
       id="manifesto"
-      className="relative z-10 min-h-screen overflow-hidden bg-canvas md:min-h-[200vh]"
+      className="relative flex min-h-screen flex-col justify-center overflow-hidden bg-canvas py-24 md:py-32"
     >
-      {/* ============================================================ */}
-      {/*  MOBILE — vertical stack, autoplay-once video                */}
-      {/* ============================================================ */}
-      <div className="flex flex-col items-start gap-8 px-6 py-16 md:hidden">
-        <div className="font-mono text-xs uppercase tracking-[0.22em] text-fg-muted">
-          — MANIFESTO
-        </div>
+      {/* Top-left tactical eyebrow */}
+      <div className="absolute left-8 top-8 z-10 font-mono text-xs uppercase tracking-[0.22em] text-fg-muted md:left-12">
+        — MANIFESTO
+      </div>
 
-        <div className="relative aspect-video w-full overflow-hidden border border-fg/15 bg-canvas-elevated">
-          {!videoFailed ? (
-            <video
-              src="/video/brand-loop.mp4"
-              muted
-              playsInline
-              autoPlay
-              preload="metadata"
-              aria-hidden="true"
-              className="h-full w-full object-cover"
-              onError={() => setVideoFailed(true)}
-            />
-          ) : (
-            <div
-              aria-hidden="true"
-              className="absolute inset-0 bg-gradient-to-br from-canvas-elevated via-canvas to-canvas-elevated"
-            />
-          )}
-          <CornerBrackets />
-        </div>
+      {/* Top-right section number */}
+      <div className="absolute right-8 top-8 z-10 flex items-center gap-2.5 md:right-12">
+        <div className="h-px w-7 bg-fg-muted" />
+        <span className="font-mono text-xs uppercase tracking-[0.22em] text-fg-muted">
+          002 / MANIFESTO
+        </span>
+      </div>
 
-        <h2
+      {/* Left vertical accent bar */}
+      <div
+        aria-hidden="true"
+        className="absolute bottom-1/4 left-0 top-1/4 z-10 hidden w-[2px] bg-accent md:block"
+      />
+
+      {/* Right vertical type */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute right-4 top-1/2 z-10 hidden -translate-y-1/2 origin-center -rotate-90 whitespace-nowrap font-mono text-xs uppercase tracking-[0.32em] text-fg-muted md:block"
+      >
+        WHAT WE ARE — WHO WE COACH
+      </div>
+
+      {/* Main content stack */}
+      <div className="relative z-20 mx-auto w-full max-w-[1400px] px-6 md:px-12">
+        {/* Statement 1 — the punch */}
+        <motion.h2
+          {...fadeUp(0.1)}
           className="font-medium text-fg"
           style={{
             fontFamily: "var(--font-display)",
             fontStyle: "italic",
-            fontSize: "clamp(2.5rem, 11vw, 3.5rem)",
+            fontSize: "clamp(2.75rem, 8vw, 7rem)",
             lineHeight: 0.92,
             letterSpacing: "-0.035em",
           }}
         >
           This isn&apos;t a{" "}
           <span className="relative inline-block">
-            <span className="relative z-10">gym.</span>
-            <span
+            gym.
+            <motion.span
               aria-hidden="true"
-              className="absolute -left-1 -right-1 bottom-[8px] z-0 h-[12px] bg-accent"
+              initial={reducedMotion ? { scaleX: 1 } : { scaleX: 0 }}
+              whileInView={{ scaleX: 1 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{
+                delay: 0.6,
+                duration: 0.7,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+              className="absolute -left-[2px] -right-[2px] bottom-[10px] z-[-1] h-[12px] origin-left bg-accent"
             />
           </span>
-        </h2>
+        </motion.h2>
 
-        <h2
-          className="font-medium text-fg"
+        {/* Statement 2 — the philosophy */}
+        <motion.h2
+          {...fadeUp(0.3)}
+          className="mt-12 font-medium text-fg md:mt-16"
           style={{
             fontFamily: "var(--font-display)",
             fontStyle: "italic",
-            fontSize: "clamp(2.5rem, 11vw, 3.5rem)",
+            fontSize: "clamp(2.25rem, 6.5vw, 5.5rem)",
             lineHeight: 0.92,
             letterSpacing: "-0.035em",
           }}
         >
           It&apos;s a{" "}
           <span className="relative inline-block">
-            <span className="relative z-10">system.</span>
-            <span
+            system.
+            <motion.span
               aria-hidden="true"
-              className="absolute -left-1 -right-1 bottom-[8px] z-0 h-[12px] bg-accent"
+              initial={reducedMotion ? { scaleX: 1 } : { scaleX: 0 }}
+              whileInView={{ scaleX: 1 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{
+                delay: 0.8,
+                duration: 0.7,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+              className="absolute -left-[2px] -right-[2px] bottom-[8px] z-[-1] h-[10px] origin-left bg-accent"
             />
           </span>
-        </h2>
+        </motion.h2>
 
-        <h2
-          className="font-medium text-fg"
+        {/* Statement 3 — the inclusion */}
+        <motion.h2
+          {...fadeUp(0.5)}
+          className="mt-10 font-medium text-fg md:mt-14"
           style={{
             fontFamily: "var(--font-display)",
             fontStyle: "italic",
-            fontSize: "clamp(2.5rem, 11vw, 3.5rem)",
+            fontSize: "clamp(2rem, 5.5vw, 4.5rem)",
             lineHeight: 0.92,
             letterSpacing: "-0.035em",
           }}
         >
-          Built for <span className="text-accent">every body</span>.
-        </h2>
+          Built for <span className="text-accent">every body.</span>
+        </motion.h2>
 
-        <p
-          className="text-fg-muted"
-          style={{
-            fontFamily: "var(--font-display)",
-            fontStyle: "italic",
-            fontSize: "clamp(1.75rem, 7vw, 2.25rem)",
-            lineHeight: 1.05,
-          }}
+        {/* Manifesto body prose */}
+        <motion.div
+          {...fadeUp(0.7)}
+          className="mt-16 max-w-[42ch] space-y-4 text-base leading-relaxed text-fg-muted md:mt-20 md:space-y-5 md:text-lg"
         >
-          Show up. We handle the rest.
-        </p>
+          <p>Most gyms sell a membership. We coach a process.</p>
+          <p>
+            Eight years coaching boot-camp groups in Victorville means
+            we&apos;ve seen every level — beginners scared they&apos;ll be the
+            slowest, athletes peaking for competitions, returners after
+            injuries, parents fitting workouts between work and the school
+            run.
+          </p>
+          <p>
+            Every workout has modifications built in because every body needs
+            them. Show up. We handle the rest.
+          </p>
+        </motion.div>
 
-        <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-fg-muted">
-          — THE METHOD · 8 YEARS RUNNING
-        </div>
-        <div className="font-mono text-xs uppercase tracking-[0.22em] text-concrete">
-          — 34.5362°N · 117.2906°W
-        </div>
+        {/* Bottom GPS + attribution */}
+        <motion.div
+          {...fadeUp(0.9)}
+          className="mt-16 flex flex-col gap-3 md:mt-20 md:flex-row md:items-center md:gap-6"
+        >
+          <div className="font-mono text-xs uppercase tracking-[0.22em] text-concrete">
+            — 34.5362°N · 117.2906°W · ALPHA OMEGA FITNESS
+          </div>
+          <div
+            aria-hidden="true"
+            className="hidden h-px flex-1 bg-fg-muted/30 md:block"
+          />
+          <div className="font-mono text-xs uppercase tracking-[0.22em] text-fg-muted">
+            — THE METHOD · 8 YEARS RUNNING
+          </div>
+        </motion.div>
       </div>
 
-      {/* ============================================================ */}
-      {/*  DESKTOP — sticky 4-act cinematic                            */}
-      {/* ============================================================ */}
-      <div className="hidden md:block">
-        <div className="sticky top-0 h-screen w-full overflow-hidden">
-          {/* --- Full-bleed video layer, scales 0.4 → 1.0 in Act I --- */}
-          <motion.div
-            aria-hidden="true"
-            className="absolute inset-0 h-full w-full overflow-hidden will-change-transform"
-            style={{
-              scale: reducedMotion ? 1 : videoScale,
-              opacity: reducedMotion ? 1 : videoOpacity,
-              transformOrigin: "center center",
-            }}
-          >
-            {!videoFailed ? (
-              <video
-                ref={videoRef}
-                src="/video/brand-loop.mp4"
-                muted
-                loop={false}
-                playsInline
-                preload="auto"
-                aria-hidden="true"
-                className="absolute inset-0 h-full w-full object-cover"
-                onLoadedMetadata={() => {
-                  const v = videoRef.current;
-                  if (!v || reducedMotion) return;
-                  v.pause();
-                  v.currentTime = 0;
-                }}
-                onError={() => setVideoFailed(true)}
-              />
-            ) : (
-              <div className="relative h-full w-full bg-gradient-to-br from-canvas-elevated via-canvas to-canvas-elevated">
-                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-mono text-xs uppercase tracking-[0.22em] text-accent">
-                  BRAND_LOOP — PENDING
-                </div>
-              </div>
-            )}
-          </motion.div>
-
-          {/* --- Dark overlay (sits on top of video, below brackets/text) --- */}
-          <motion.div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 bg-canvas"
-            style={{
-              opacity: reducedMotion ? 0.4 : videoOverlayOpacity,
-            }}
-          />
-
-          {/* --- Corner brackets — anchored to viewport, not scaling video --- */}
-          <motion.div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 z-20"
-            style={{ opacity: reducedMotion ? 1 : bracketsOpacity }}
-          >
-            <CornerBrackets />
-          </motion.div>
-
-          {/* --- Section number top-right (always visible) --- */}
-          <div className="absolute right-8 top-8 z-30 flex items-center gap-2.5 md:right-12">
-            <span aria-hidden="true" className="h-px w-7 bg-fg-muted" />
-            <span className="font-mono text-xs uppercase tracking-[0.22em] text-fg-muted">
-              002 / MANIFESTO
-            </span>
-          </div>
-
-          {/* --- "— MANIFESTO" eyebrow top-left (always visible) --- */}
-          <div className="absolute left-8 top-8 z-30 font-mono text-xs uppercase tracking-[0.22em] text-fg-muted md:left-12">
-            — MANIFESTO
-          </div>
-
-          {/* --- Statement 1: This isn't a gym. --- */}
-          <motion.h2
-            className="absolute left-8 top-1/2 z-30 max-w-[80vw] -translate-y-1/2 font-medium text-fg md:left-16"
-            style={{
-              fontFamily: "var(--font-display)",
-              fontStyle: "italic",
-              fontSize: "clamp(3.5rem, 10vw, 9rem)",
-              lineHeight: 0.92,
-              letterSpacing: "-0.035em",
-              opacity: reducedMotion ? 0 : s1Opacity,
-              y: reducedMotion ? 0 : s1Y,
-            }}
-          >
-            This isn&apos;t a{" "}
-            <span className="relative inline-block">
-              <span className="relative z-10">gym.</span>
-              <motion.span
-                aria-hidden="true"
-                className="absolute -left-1 -right-1 bottom-[12px] z-0 h-[14px] bg-accent"
-                style={{
-                  scaleX: reducedMotion ? 1 : s1StrikeScaleX,
-                  transformOrigin: "left",
-                }}
-              />
-            </span>
-          </motion.h2>
-
-          {/* --- Statement 2: It's a system. --- */}
-          <motion.h2
-            className="absolute left-8 top-1/2 z-30 max-w-[80vw] -translate-y-1/2 font-medium text-fg md:left-16"
-            style={{
-              fontFamily: "var(--font-display)",
-              fontStyle: "italic",
-              fontSize: "clamp(3.5rem, 10vw, 9rem)",
-              lineHeight: 0.92,
-              letterSpacing: "-0.035em",
-              opacity: reducedMotion ? 0 : s2Opacity,
-              y: reducedMotion ? 0 : s2Y,
-            }}
-          >
-            It&apos;s a{" "}
-            <span className="relative inline-block">
-              <span className="relative z-10">system.</span>
-              <motion.span
-                aria-hidden="true"
-                className="absolute -left-1 -right-1 bottom-[12px] z-0 h-[14px] bg-accent"
-                style={{
-                  scaleX: reducedMotion ? 1 : s2StrikeScaleX,
-                  transformOrigin: "left",
-                }}
-              />
-            </span>
-          </motion.h2>
-
-          {/* --- Statement 3: Built for every body. --- */}
-          <motion.h2
-            className="absolute left-8 top-1/2 z-30 max-w-[80vw] -translate-y-1/2 font-medium text-fg md:left-16"
-            style={{
-              fontFamily: "var(--font-display)",
-              fontStyle: "italic",
-              fontSize: "clamp(3.5rem, 10vw, 9rem)",
-              lineHeight: 0.92,
-              letterSpacing: "-0.035em",
-              opacity: reducedMotion ? 0 : s3Opacity,
-              y: reducedMotion ? 0 : s3Y,
-            }}
-          >
-            Built for <span className="text-accent">every body</span>.
-          </motion.h2>
-
-          {/* --- Statement 4: Show up. We handle the rest. --- */}
-          <motion.div
-            className="absolute left-1/2 top-1/2 z-30 -translate-x-1/2 -translate-y-1/2 text-center"
-            style={{
-              opacity: reducedMotion ? 0 : s4Opacity,
-              y: reducedMotion ? 0 : s4Y,
-            }}
-          >
-            <h2
-              className="font-medium text-fg"
-              style={{
-                fontFamily: "var(--font-display)",
-                fontStyle: "italic",
-                fontSize: "clamp(2.5rem, 6vw, 5rem)",
-                lineHeight: 1.0,
-                letterSpacing: "-0.03em",
-              }}
-            >
-              <span className="block">Show up.</span>
-              <span className="block">We handle the rest.</span>
-            </h2>
-            <div className="mt-6 font-mono text-xs uppercase tracking-[0.22em] text-fg-muted">
-              — THE METHOD · 8 YEARS RUNNING
-            </div>
-          </motion.div>
-
-          {/* --- Tactical metadata block (bottom-left) --- */}
-          <motion.div
-            className="absolute bottom-8 left-8 z-30 space-y-1.5 md:left-12"
-            style={{ opacity: reducedMotion ? 1 : metadataOpacity }}
-          >
-            <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
-              BRAND_LOOP · 00:00:08
-            </div>
-            <div className="font-mono text-xs uppercase tracking-[0.22em] text-fg-muted">
-              — 34.5362°N · 117.2906°W
-            </div>
-          </motion.div>
-
-          {/* --- REC indicator --- */}
-          <motion.div
-            className="absolute right-8 top-16 z-30 flex items-center gap-2 md:right-12"
-            style={{ opacity: reducedMotion ? 1 : metadataOpacity }}
-          >
-            <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-fg-muted">
-              REC
-            </span>
-            <span
-              aria-hidden="true"
-              className="h-1.5 w-1.5 animate-pulse bg-accent"
-            />
-          </motion.div>
-
-          {/* --- Act IV exit rule --- */}
-          <motion.div
-            aria-hidden="true"
-            className="absolute bottom-20 left-8 right-8 z-30 h-px bg-accent md:left-12 md:right-12"
-            style={{
-              scaleX: reducedMotion ? 0 : exitRuleScaleX,
-              transformOrigin: "left",
-            }}
-          />
-
-          {/* --- Act IV exit pointer text --- */}
-          <motion.div
-            className="absolute bottom-12 left-8 z-30 font-mono text-xs uppercase tracking-[0.22em] text-fg-muted md:left-12"
-            style={{ opacity: reducedMotion ? 0 : exitTextOpacity }}
-          >
-            — 003 / WHO WE ARE [VINCE &amp; ELENA] →
-          </motion.div>
-        </div>
-      </div>
+      {/* Bottom-right scroll cue */}
+      <motion.div
+        {...fadeUp(1.1)}
+        className="absolute bottom-8 right-8 z-10 flex items-center gap-2 md:right-12"
+      >
+        <span className="font-mono text-xs uppercase tracking-[0.22em] text-fg-muted">
+          003 / WHO WE ARE →
+        </span>
+      </motion.div>
     </section>
-  );
-}
-
-/** Tactical L-bracket corners — viewport anchored when wrapped in absolute inset-0. */
-function CornerBrackets() {
-  const arms = "w-5 h-5 border-accent";
-  return (
-    <>
-      <div
-        aria-hidden="true"
-        className={`absolute left-2 top-2 ${arms} border-l-[1.5px] border-t-[1.5px]`}
-      />
-      <div
-        aria-hidden="true"
-        className={`absolute right-2 top-2 ${arms} border-r-[1.5px] border-t-[1.5px]`}
-      />
-      <div
-        aria-hidden="true"
-        className={`absolute bottom-2 left-2 ${arms} border-b-[1.5px] border-l-[1.5px]`}
-      />
-      <div
-        aria-hidden="true"
-        className={`absolute bottom-2 right-2 ${arms} border-b-[1.5px] border-r-[1.5px]`}
-      />
-    </>
   );
 }
