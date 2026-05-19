@@ -6,20 +6,19 @@ type Variant = "default" | "photo" | "button";
 
 /**
  * Custom desktop cursor — yellow crosshair, lerp follow.
- * - Default: 24x24 crosshair, no label
- * - Hover [data-cursor="photo"]: expands to 48x48, displays data-photo-label
- * - Hover a / button / [role="button"]: arrow shape + "→ CLICK"
+ * - Default: 24×24 crosshair
+ * - Hover [data-cursor="photo"]: crosshair grows to 48×48
+ * - Hover a / button / [role="button"]: arrow shape
+ * - No text labels of any kind
  * - Hidden on touch, reduced-motion, and before first mousemove
  */
 export default function Cursor() {
   const dotRef = useRef<HTMLDivElement>(null);
-  const labelRef = useRef<HTMLDivElement>(null);
   const target = useRef({ x: 0, y: 0 });
   const current = useRef({ x: 0, y: 0 });
   const rafId = useRef<number | null>(null);
   const [visible, setVisible] = useState(false);
   const [variant, setVariant] = useState<Variant>("default");
-  const [photoLabel, setPhotoLabel] = useState("");
   const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
@@ -51,7 +50,6 @@ export default function Cursor() {
 
       if (photoEl) {
         setVariant("photo");
-        setPhotoLabel(photoEl.dataset.photoLabel ?? "[PHOTO]");
       } else if (clickEl) {
         setVariant("button");
       } else {
@@ -72,9 +70,6 @@ export default function Cursor() {
       if (dotRef.current) {
         dotRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
       }
-      if (labelRef.current) {
-        labelRef.current.style.transform = `translate3d(${x + 18}px, ${y + 18}px, 0)`;
-      }
 
       rafId.current = requestAnimationFrame(animate);
     };
@@ -91,82 +86,61 @@ export default function Cursor() {
   const opacity = visible ? 1 : 0;
   const isPhoto = variant === "photo";
   const isButton = variant === "button";
-  const labelText = isPhoto ? photoLabel : isButton ? "→ CLICK" : "";
-  const showLabel = labelText.length > 0;
 
   return (
-    <>
-      <div
-        ref={dotRef}
-        aria-hidden="true"
-        className="pointer-events-none fixed left-0 top-0 z-[9999]"
-        style={{ opacity, transition: "opacity 180ms ease" }}
-      >
-        {isButton ? (
-          <svg
-            width="22"
-            height="22"
-            viewBox="0 0 22 22"
-            fill="none"
+    <div
+      ref={dotRef}
+      aria-hidden="true"
+      className="pointer-events-none fixed left-0 top-0 z-[9999]"
+      style={{ opacity, transition: "opacity 180ms ease" }}
+    >
+      {isButton ? (
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 22 22"
+          fill="none"
+          style={{
+            transition: "transform 180ms ease",
+            transform: "translate(-50%, -50%)",
+          }}
+        >
+          <path
+            d="M3 3 L19 11 L11 13 L9 21 Z"
+            fill="#FCDB1A"
+            stroke="#FCDB1A"
+            strokeWidth="1"
+            strokeLinejoin="round"
+          />
+        </svg>
+      ) : (
+        <div
+          className="relative"
+          style={{
+            width: isPhoto ? 48 : 24,
+            height: isPhoto ? 48 : 24,
+            transform: "translate(-50%, -50%)",
+            transition: "width 200ms ease, height 200ms ease",
+          }}
+        >
+          <span
+            className="absolute left-1/2 top-0 bottom-0"
             style={{
-              transition: "transform 180ms ease",
-              transform: "translate(-50%, -50%)",
+              width: 1,
+              background: "#FCDB1A",
+              transform: "translateX(-50%)",
             }}
-          >
-            <path
-              d="M3 3 L19 11 L11 13 L9 21 Z"
-              fill="#FCDB1A"
-              stroke="#FCDB1A"
-              strokeWidth="1"
-              strokeLinejoin="round"
-            />
-          </svg>
-        ) : (
-          <div
-            className="relative"
+          />
+          <span
+            className="absolute top-1/2 left-0 right-0"
             style={{
-              width: isPhoto ? 48 : 24,
-              height: isPhoto ? 48 : 24,
-              transform: "translate(-50%, -50%)",
-              transition: "width 200ms ease, height 200ms ease",
+              height: 1,
+              background: "#FCDB1A",
+              transform: "translateY(-50%)",
             }}
-          >
-            <span
-              className="absolute left-1/2 top-0 bottom-0"
-              style={{
-                width: 1,
-                background: "#FCDB1A",
-                transform: "translateX(-50%)",
-              }}
-            />
-            <span
-              className="absolute top-1/2 left-0 right-0"
-              style={{
-                height: 1,
-                background: "#FCDB1A",
-                transform: "translateY(-50%)",
-              }}
-            />
-          </div>
-        )}
-      </div>
-
-      <div
-        ref={labelRef}
-        aria-hidden="true"
-        className="pointer-events-none fixed left-0 top-0 z-[9999] whitespace-nowrap"
-        style={{
-          opacity: visible && showLabel ? 1 : 0,
-          transition: "opacity 180ms ease",
-          fontFamily: "var(--font-mono)",
-          fontSize: "11px",
-          letterSpacing: "0.18em",
-          color: "#FCDB1A",
-          textTransform: "uppercase",
-        }}
-      >
-        {labelText}
-      </div>
-    </>
+          />
+        </div>
+      )}
+    </div>
   );
 }
