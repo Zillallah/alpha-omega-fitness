@@ -10,14 +10,19 @@ import {
 } from "framer-motion";
 
 /**
- * Manifesto — Batch 2.2 / section 002.
- * Four-act sticky cinematic drop. The brand video scales full-bleed,
- * plays through during Act II, holds on the tactical-compass last frame
- * as a backdrop for three rotating manifesto statements, then exits
- * with a yellow accent rule pointing to Coaches.
+ * Manifesto — Batch 2.4 / section 002.
+ * Four-act sticky cinematic. Video fills the entire viewport (full-bleed)
+ * during Acts II–IV. CornerBrackets anchor to viewport corners, not the
+ * scaling video. Video is scrubbed by scroll position (no play loop).
  *
- * Mobile: replaced with a vertical stack — autoplay-once video then
- * four stacked statements. No sticky pinning. No scrub.
+ * Acts (across 200vh of scroll):
+ *   I   0.00 → 0.20 — video scales 0.4 → 1.0, fades in
+ *   II  0.20 → 0.45 — video scrubs through its 8s sequence; Statement 1
+ *   III 0.45 → 0.85 — video holds on last frame; Statements 2/3 crossfade
+ *   IV  0.85 → 1.00 — yellow exit rule + "003 / WHO WE ARE →" pointer;
+ *                     Statement 4 ("Show up. We handle the rest.")
+ *
+ * Mobile: vertical stack of all four statements with autoplay-once video.
  */
 export default function Manifesto() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -39,77 +44,79 @@ export default function Manifesto() {
   });
   const smooth = useSpring(scrollYProgress, { stiffness: 80, damping: 25 });
 
-  /* ---- Act I — video approach ---- */
-  const videoScale = useTransform(smooth, [0, 0.25], [0.4, 1.0]);
+  /* ---- Act I — video approach (0 → 0.20) ---- */
+  const videoScale = useTransform(smooth, [0, 0.2], [0.4, 1.0]);
   const videoOpacity = useTransform(smooth, [0, 0.1], [0, 1]);
-  const videoOverlayOpacity = useTransform(smooth, [0.25, 0.5], [0, 0.55]);
 
-  /* ---- Act II — statement 1 ---- */
+  /* ---- Dark overlay — gradual increase keeps type readable ---- */
+  const videoOverlayOpacity = useTransform(
+    smooth,
+    [0.25, 0.5, 0.85],
+    [0, 0.4, 0.55]
+  );
+
+  /* ---- Corner brackets reveal — viewport-anchored, fade in late Act I ---- */
+  const bracketsOpacity = useTransform(smooth, [0.2, 0.3], [0, 1]);
+
+  /* ---- Act II — Statement 1 (This isn't a gym.) ---- */
   const s1Opacity = useTransform(
     smooth,
-    [0.25, 0.32, 0.48, 0.55],
+    [0.25, 0.32, 0.42, 0.48],
     [0, 1, 1, 0]
   );
   const s1Y = useTransform(smooth, [0.25, 0.32], [60, 0]);
   const s1StrikeScaleX = useTransform(smooth, [0.32, 0.42], [0, 1]);
 
-  /* ---- Act III a — statement 2 ---- */
+  /* ---- Act III a — Statement 2 (It's a system.) ---- */
   const s2Opacity = useTransform(
     smooth,
-    [0.5, 0.56, 0.62, 0.68],
+    [0.48, 0.54, 0.62, 0.68],
     [0, 1, 1, 0]
   );
-  const s2Y = useTransform(smooth, [0.5, 0.56], [40, 0]);
-  const s2StrikeScaleX = useTransform(smooth, [0.56, 0.62], [0, 1]);
+  const s2Y = useTransform(smooth, [0.48, 0.54], [40, 0]);
+  const s2StrikeScaleX = useTransform(smooth, [0.54, 0.62], [0, 1]);
 
-  /* ---- Act III b — statement 3 ---- */
+  /* ---- Act III b — Statement 3 (Built for every body.) ---- */
   const s3Opacity = useTransform(
     smooth,
-    [0.65, 0.69, 0.74, 0.8],
+    [0.65, 0.71, 0.78, 0.84],
     [0, 1, 1, 0]
   );
-  const s3Y = useTransform(smooth, [0.65, 0.69], [40, 0]);
+  const s3Y = useTransform(smooth, [0.65, 0.71], [40, 0]);
 
-  /* ---- Act III c — statement 4 (Show up...) ---- */
+  /* ---- Act IV — Statement 4 (Show up. We handle the rest.) ---- */
   const s4Opacity = useTransform(
     smooth,
-    [0.78, 0.82, 0.86, 0.92],
+    [0.82, 0.88, 0.94, 1.0],
     [0, 1, 1, 0]
   );
-  const s4Y = useTransform(smooth, [0.78, 0.82], [40, 0]);
+  const s4Y = useTransform(smooth, [0.82, 0.88], [40, 0]);
 
   /* ---- Tactical metadata reveal ---- */
-  const metadataOpacity = useTransform(smooth, [0.5, 0.6], [0, 1]);
+  const metadataOpacity = useTransform(smooth, [0.4, 0.5], [0, 1]);
 
-  /* ---- Act IV — exit ---- */
-  const exitRuleScaleX = useTransform(smooth, [0.88, 0.96], [0, 1]);
-  const exitTextOpacity = useTransform(smooth, [0.92, 0.98], [0, 1]);
+  /* ---- Act IV exit ---- */
+  const exitRuleScaleX = useTransform(smooth, [0.92, 0.98], [0, 1]);
+  const exitTextOpacity = useTransform(smooth, [0.95, 1.0], [0, 1]);
 
-  /* ---- Video scrub control — scroll-bound play/pause + hold frames ---- */
+  /* ---- True scroll-bound video scrub.
+     No play() — currentTime is driven directly by scroll position so
+     video advances forward, backward, or stops in sync with the user. */
   useMotionValueEvent(smooth, "change", (latest) => {
     const v = videoRef.current;
     if (!v || reducedMotion || videoFailed) return;
+    if (!v.paused) v.pause();
+    if (!Number.isFinite(v.duration) || v.duration <= 0) return;
 
-    if (latest >= 0.22 && latest <= 0.55) {
-      // Act II play zone — play forward, no loop
-      v.loop = false;
-      if (v.paused) v.play().catch(() => {});
-    } else if (latest > 0.55) {
-      // Past Act II — hold on last frame for III & IV backdrop
-      if (!v.paused) v.pause();
-      if (
-        Number.isFinite(v.duration) &&
-        v.duration > 0 &&
-        v.currentTime < v.duration - 0.1
-      ) {
-        v.currentTime = Math.max(0, v.duration - 0.05);
-      }
+    const end = v.duration - 0.1;
+
+    if (latest < 0.2) {
+      v.currentTime = 0;
+    } else if (latest >= 0.2 && latest <= 0.45) {
+      const t = (latest - 0.2) / 0.25;
+      v.currentTime = Math.max(0, Math.min(t * end, end));
     } else {
-      // Before Act II — hold on first frame
-      if (!v.paused) v.pause();
-      if (v.currentTime > 0.1) {
-        v.currentTime = 0;
-      }
+      v.currentTime = Math.max(0, v.duration - 0.05);
     }
   });
 
@@ -117,7 +124,7 @@ export default function Manifesto() {
     <section
       ref={sectionRef}
       id="manifesto"
-      className="relative z-10 min-h-screen overflow-hidden bg-canvas md:min-h-[250vh]"
+      className="relative z-10 min-h-screen overflow-hidden bg-canvas md:min-h-[200vh]"
     >
       {/* ============================================================ */}
       {/*  MOBILE — vertical stack, autoplay-once video                */}
@@ -226,12 +233,14 @@ export default function Manifesto() {
       {/* ============================================================ */}
       <div className="hidden md:block">
         <div className="sticky top-0 h-screen w-full overflow-hidden">
-          {/* --- Full-bleed video, scales 0.4 → 1.0 in Act I --- */}
+          {/* --- Full-bleed video layer, scales 0.4 → 1.0 in Act I --- */}
           <motion.div
-            className="absolute inset-0 h-full w-full will-change-transform"
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full overflow-hidden will-change-transform"
             style={{
               scale: reducedMotion ? 1 : videoScale,
               opacity: reducedMotion ? 1 : videoOpacity,
+              transformOrigin: "center center",
             }}
           >
             {!videoFailed ? (
@@ -239,10 +248,17 @@ export default function Manifesto() {
                 ref={videoRef}
                 src="/video/brand-loop.mp4"
                 muted
+                loop={false}
                 playsInline
-                preload="metadata"
+                preload="auto"
                 aria-hidden="true"
-                className="h-full w-full object-cover"
+                className="absolute inset-0 h-full w-full object-cover"
+                onLoadedMetadata={() => {
+                  const v = videoRef.current;
+                  if (!v || reducedMotion) return;
+                  v.pause();
+                  v.currentTime = 0;
+                }}
                 onError={() => setVideoFailed(true)}
               />
             ) : (
@@ -252,15 +268,24 @@ export default function Manifesto() {
                 </div>
               </div>
             )}
+          </motion.div>
+
+          {/* --- Dark overlay (sits on top of video, below brackets/text) --- */}
+          <motion.div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 bg-canvas"
+            style={{
+              opacity: reducedMotion ? 0.4 : videoOverlayOpacity,
+            }}
+          />
+
+          {/* --- Corner brackets — anchored to viewport, not scaling video --- */}
+          <motion.div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 z-20"
+            style={{ opacity: reducedMotion ? 1 : bracketsOpacity }}
+          >
             <CornerBrackets />
-            {/* Dark overlay (revealed in Acts III–IV for type readability) */}
-            <motion.div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 bg-canvas"
-              style={{
-                opacity: reducedMotion ? 0.55 : videoOverlayOpacity,
-              }}
-            />
           </motion.div>
 
           {/* --- Section number top-right (always visible) --- */}
@@ -372,7 +397,7 @@ export default function Manifesto() {
             </div>
           </motion.div>
 
-          {/* --- Tactical metadata block (bottom-left, reveals Act III) --- */}
+          {/* --- Tactical metadata block (bottom-left) --- */}
           <motion.div
             className="absolute bottom-8 left-8 z-30 space-y-1.5 md:left-12"
             style={{ opacity: reducedMotion ? 1 : metadataOpacity }}
@@ -385,7 +410,7 @@ export default function Manifesto() {
             </div>
           </motion.div>
 
-          {/* --- REC indicator (top-right, below section number) --- */}
+          {/* --- REC indicator --- */}
           <motion.div
             className="absolute right-8 top-16 z-30 flex items-center gap-2 md:right-12"
             style={{ opacity: reducedMotion ? 1 : metadataOpacity }}
@@ -399,7 +424,7 @@ export default function Manifesto() {
             />
           </motion.div>
 
-          {/* --- Act IV: Exit rule (horizontal yellow line) --- */}
+          {/* --- Act IV exit rule --- */}
           <motion.div
             aria-hidden="true"
             className="absolute bottom-20 left-8 right-8 z-30 h-px bg-accent md:left-12 md:right-12"
@@ -409,7 +434,7 @@ export default function Manifesto() {
             }}
           />
 
-          {/* --- Act IV: Exit pointer text --- */}
+          {/* --- Act IV exit pointer text --- */}
           <motion.div
             className="absolute bottom-12 left-8 z-30 font-mono text-xs uppercase tracking-[0.22em] text-fg-muted md:left-12"
             style={{ opacity: reducedMotion ? 0 : exitTextOpacity }}
@@ -422,7 +447,7 @@ export default function Manifesto() {
   );
 }
 
-/** Tactical L-bracket corners. */
+/** Tactical L-bracket corners — viewport anchored when wrapped in absolute inset-0. */
 function CornerBrackets() {
   const arms = "w-5 h-5 border-accent";
   return (

@@ -10,8 +10,6 @@ import {
 } from "framer-motion";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 
-const REVEAL_EASE = [0.22, 1, 0.36, 1] as const;
-
 type NameLine = { text: string; vector: { x: number; y: number } };
 type Stat = { value: string; label: string };
 
@@ -26,6 +24,14 @@ type CoachData = {
   imageSrc: string;
   imageLabel: string;
   subjectLabel: string;
+};
+
+type Reveals = {
+  name: { opacity: MotionValue<number>; y: MotionValue<number> };
+  bio: { opacity: MotionValue<number>; y: MotionValue<number> };
+  quote: { opacity: MotionValue<number>; y: MotionValue<number> };
+  stats: { opacity: MotionValue<number>; y: MotionValue<number> };
+  portrait: { opacity: MotionValue<number>; y: MotionValue<number> };
 };
 
 const VINCE: CoachData = {
@@ -70,11 +76,13 @@ const ELENA: CoachData = {
 };
 
 /**
- * Coaches — Batch 2 / section 003.
- * 240vh: two sticky frames cross-fade at scrollYProgress 0.5.
- * Vince's portrait sits right (text left); Elena's portrait sits left
- * (text right) — asymmetric flip emphasizes partnership.
- * Mobile (< 768px): no sticky, both coaches stack normally.
+ * Coaches — Batch 2.4 / section 003.
+ * 180vh: two sticky frames, scroll-bound reveals locked to scrollYProgress.
+ * No more whileInView triggers — reveals are deterministic by scroll position,
+ * so fast-scrolling users see the same composition as slow-scrolling users.
+ *
+ * Stack-reveal wrapper (Batch 2.2) slides the section up over Manifesto's
+ * Act IV exit zone. Frame cross-fade happens at scroll 0.42–0.58.
  */
 export default function Coaches() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -89,87 +97,134 @@ export default function Coaches() {
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  /* ---- Stack-reveal: section rises from below as user scrolls toward it.
-     Wrapper occupies natural document flow; section uses y-transform to
-     visually slide up. Effect: Coaches covers Manifesto's exit zone from
-     below, like a card being dealt over it. */
+  /* ---- Stack-reveal: section rises from below Manifesto's exit zone ---- */
   const { scrollYProgress: wrapperProgress } = useScroll({
     target: wrapperRef,
     offset: ["start end", "start start"],
   });
   const stackY = useTransform(wrapperProgress, [0, 1], ["100vh", "0vh"]);
 
-  /* ---- Internal Vince/Elena choreography ---- */
+  /* ---- Internal Vince/Elena reveal choreography ---- */
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end end"],
   });
 
-  const vinceOpacity = useTransform(scrollYProgress, [0.4, 0.5], [1, 0]);
-  const elenaOpacity = useTransform(scrollYProgress, [0.5, 0.6], [0, 1]);
-  const vincePortraitY = useTransform(scrollYProgress, [0, 0.5], [0, -40]);
-  const elenaPortraitY = useTransform(scrollYProgress, [0.5, 1], [0, -40]);
+  /* Frame cross-fade — Vince fades out, Elena fades in across the 0.42–0.58 zone */
+  const vinceFrameOpacity = useTransform(scrollYProgress, [0.42, 0.5], [1, 0]);
+  const elenaFrameOpacity = useTransform(scrollYProgress, [0.5, 0.58], [0, 1]);
+
+  /* Vince reveals (Frame A: scrollYProgress 0 → 0.5) */
+  const vinceNameOpacity = useTransform(scrollYProgress, [0.0, 0.06], [0, 1]);
+  const vinceNameY = useTransform(scrollYProgress, [0.0, 0.06], [40, 0]);
+  const vinceBioOpacity = useTransform(scrollYProgress, [0.04, 0.1], [0, 1]);
+  const vinceBioY = useTransform(scrollYProgress, [0.04, 0.1], [30, 0]);
+  const vinceQuoteOpacity = useTransform(scrollYProgress, [0.08, 0.14], [0, 1]);
+  const vinceQuoteY = useTransform(scrollYProgress, [0.08, 0.14], [30, 0]);
+  const vinceStatsOpacity = useTransform(scrollYProgress, [0.12, 0.18], [0, 1]);
+  const vinceStatsY = useTransform(scrollYProgress, [0.12, 0.18], [30, 0]);
+  const vincePortraitOpacity = useTransform(scrollYProgress, [0.0, 0.08], [0, 1]);
+  /* Vince portrait combines reveal (60→0) with parallax (0→-40) */
+  const vincePortraitY = useTransform(
+    scrollYProgress,
+    [0, 0.08, 0.5],
+    [60, 0, -40]
+  );
+
+  /* Elena reveals (Frame B: scrollYProgress 0.5 → 1.0) */
+  const elenaNameOpacity = useTransform(scrollYProgress, [0.5, 0.56], [0, 1]);
+  const elenaNameY = useTransform(scrollYProgress, [0.5, 0.56], [40, 0]);
+  const elenaBioOpacity = useTransform(scrollYProgress, [0.54, 0.6], [0, 1]);
+  const elenaBioY = useTransform(scrollYProgress, [0.54, 0.6], [30, 0]);
+  const elenaQuoteOpacity = useTransform(scrollYProgress, [0.58, 0.64], [0, 1]);
+  const elenaQuoteY = useTransform(scrollYProgress, [0.58, 0.64], [30, 0]);
+  const elenaStatsOpacity = useTransform(scrollYProgress, [0.62, 0.68], [0, 1]);
+  const elenaStatsY = useTransform(scrollYProgress, [0.62, 0.68], [30, 0]);
+  const elenaPortraitOpacity = useTransform(
+    scrollYProgress,
+    [0.5, 0.58],
+    [0, 1]
+  );
+  const elenaPortraitY = useTransform(
+    scrollYProgress,
+    [0.5, 0.58, 1],
+    [60, 0, -40]
+  );
 
   const cinematic = !isMobile && !reducedMotion;
 
+  const vinceReveals: Reveals = {
+    name: { opacity: vinceNameOpacity, y: vinceNameY },
+    bio: { opacity: vinceBioOpacity, y: vinceBioY },
+    quote: { opacity: vinceQuoteOpacity, y: vinceQuoteY },
+    stats: { opacity: vinceStatsOpacity, y: vinceStatsY },
+    portrait: { opacity: vincePortraitOpacity, y: vincePortraitY },
+  };
+
+  const elenaReveals: Reveals = {
+    name: { opacity: elenaNameOpacity, y: elenaNameY },
+    bio: { opacity: elenaBioOpacity, y: elenaBioY },
+    quote: { opacity: elenaQuoteOpacity, y: elenaQuoteY },
+    stats: { opacity: elenaStatsOpacity, y: elenaStatsY },
+    portrait: { opacity: elenaPortraitOpacity, y: elenaPortraitY },
+  };
+
   return (
     <div ref={wrapperRef} className="relative">
-    <motion.section
-      ref={sectionRef}
-      id="coaches"
-      className="relative z-20 min-h-screen overflow-hidden bg-canvas md:min-h-[180vh]"
-      style={{ y: cinematic ? stackY : 0 }}
-    >
-      {/* Section number — top-right, persistent */}
-      <div className="absolute right-4 top-4 z-20 flex items-center gap-2.5 md:right-12 md:top-8">
-        <span aria-hidden="true" className="h-px w-7 bg-fg-muted" />
-        <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-fg-muted md:text-xs">
-          003 / COACHES
-        </span>
-      </div>
-
-      {/* Left margin accent bar */}
-      <div
-        aria-hidden="true"
-        className="absolute bottom-[25%] left-0 top-[25%] z-10 hidden w-[2px] bg-accent md:block"
-      />
-
-      {/* Vertical type — right edge */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute right-4 top-1/2 z-10 hidden -translate-y-1/2 origin-center -rotate-90 whitespace-nowrap font-mono text-xs uppercase tracking-[0.32em] text-fg-muted md:block"
+      <motion.section
+        ref={sectionRef}
+        id="coaches"
+        className="relative z-20 min-h-screen overflow-hidden bg-canvas md:min-h-[180vh]"
+        style={{ y: cinematic ? stackY : 0 }}
       >
-        MEET THE PEOPLE — IN THE TRENCHES SINCE 2017
-      </div>
+        {/* Section number — top-right, persistent */}
+        <div className="absolute right-4 top-4 z-20 flex items-center gap-2.5 md:right-12 md:top-8">
+          <span aria-hidden="true" className="h-px w-7 bg-fg-muted" />
+          <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-fg-muted md:text-xs">
+            003 / COACHES
+          </span>
+        </div>
 
-      {/* Frame A — Vince */}
-      <motion.div
-        className="relative flex w-full items-center py-20 md:sticky md:top-0 md:h-screen md:py-0"
-        style={{ opacity: cinematic ? vinceOpacity : 1 }}
-      >
-        <CoachBlock
-          data={VINCE}
-          flipped={false}
-          portraitY={vincePortraitY}
-          reducedMotion={reducedMotion}
-          cinematic={cinematic}
+        {/* Left margin accent bar */}
+        <div
+          aria-hidden="true"
+          className="absolute bottom-[25%] left-0 top-[25%] z-10 hidden w-[2px] bg-accent md:block"
         />
-      </motion.div>
 
-      {/* Frame B — Elena */}
-      <motion.div
-        className="relative flex w-full items-center py-20 md:sticky md:top-0 md:h-screen md:py-0"
-        style={{ opacity: cinematic ? elenaOpacity : 1 }}
-      >
-        <CoachBlock
-          data={ELENA}
-          flipped={true}
-          portraitY={elenaPortraitY}
-          reducedMotion={reducedMotion}
-          cinematic={cinematic}
-        />
-      </motion.div>
-    </motion.section>
+        {/* Vertical type — right edge */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute right-4 top-1/2 z-10 hidden -translate-y-1/2 origin-center -rotate-90 whitespace-nowrap font-mono text-xs uppercase tracking-[0.32em] text-fg-muted md:block"
+        >
+          MEET THE PEOPLE — IN THE TRENCHES SINCE 2017
+        </div>
+
+        {/* Frame A — Vince */}
+        <motion.div
+          className="relative flex w-full items-center px-6 py-12 md:sticky md:top-0 md:h-screen md:px-12 md:py-16"
+          style={{ opacity: cinematic ? vinceFrameOpacity : 1 }}
+        >
+          <CoachBlock
+            data={VINCE}
+            flipped={false}
+            reveals={vinceReveals}
+            cinematic={cinematic}
+          />
+        </motion.div>
+
+        {/* Frame B — Elena */}
+        <motion.div
+          className="relative flex w-full items-center px-6 py-12 md:sticky md:top-0 md:h-screen md:px-12 md:py-16"
+          style={{ opacity: cinematic ? elenaFrameOpacity : 1 }}
+        >
+          <CoachBlock
+            data={ELENA}
+            flipped={true}
+            reveals={elenaReveals}
+            cinematic={cinematic}
+          />
+        </motion.div>
+      </motion.section>
     </div>
   );
 }
@@ -181,42 +236,36 @@ export default function Coaches() {
 function CoachBlock({
   data,
   flipped,
-  portraitY,
-  reducedMotion,
+  reveals,
   cinematic,
 }: {
   data: CoachData;
   flipped: boolean;
-  portraitY: MotionValue<number>;
-  reducedMotion: boolean;
+  reveals: Reveals;
   cinematic: boolean;
 }) {
   return (
-    <div className="grid w-full grid-cols-1 gap-10 px-6 md:grid-cols-12 md:gap-12 md:px-12">
+    <div className="grid w-full grid-cols-1 gap-10 md:grid-cols-12 md:gap-12">
       {/* Portrait — always first in DOM (mobile order), flipped on desktop via order classes */}
-      <div
-        className={`md:col-span-5 ${flipped ? "md:order-1" : "md:order-2"}`}
-      >
+      <div className={`md:col-span-5 ${flipped ? "md:order-1" : "md:order-2"}`}>
         <CoachPortrait
           src={data.imageSrc}
           label={data.imageLabel}
           subjectLabel={data.subjectLabel}
-          y={portraitY}
+          opacity={reveals.portrait.opacity}
+          y={reveals.portrait.y}
           cinematic={cinematic}
         />
       </div>
 
       {/* Text column */}
-      <div
-        className={`md:col-span-7 ${flipped ? "md:order-2" : "md:order-1"}`}
-      >
-        {/* Mono number + name + role, e.g. "001 / VINCE GREENE · OWNER + LEAD COACH" */}
+      <div className={`md:col-span-7 ${flipped ? "md:order-2" : "md:order-1"}`}>
+        {/* Mono number + name + role */}
         <motion.div
           className="mb-6 font-mono text-[10px] uppercase tracking-[0.22em] text-fg-muted md:text-xs"
-          initial={reducedMotion ? false : { opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, margin: "-300px" }}
-          transition={{ duration: 0.6, delay: reducedMotion ? 0 : 0.6 }}
+          style={{
+            opacity: cinematic ? reveals.name.opacity : 1,
+          }}
         >
           {data.number} /{" "}
           {data.nameLines
@@ -225,8 +274,8 @@ function CoachBlock({
           · {data.role}
         </motion.div>
 
-        {/* Italic display name */}
-        <h2
+        {/* Italic display name — scroll-bound reveal at the h2 level */}
+        <motion.h2
           className="font-medium text-fg"
           style={{
             fontFamily: "var(--font-display)",
@@ -234,37 +283,24 @@ function CoachBlock({
             fontSize: "clamp(3rem, 8vw, 6rem)",
             letterSpacing: "-0.04em",
             lineHeight: 0.92,
+            opacity: cinematic ? reveals.name.opacity : 1,
+            y: cinematic ? reveals.name.y : 0,
           }}
         >
           {data.nameLines.map((line, i) => (
-            <motion.span
-              key={`${data.number}-${i}`}
-              className="block"
-              initial={
-                reducedMotion
-                  ? false
-                  : { opacity: 0, x: line.vector.x, y: line.vector.y }
-              }
-              whileInView={{ opacity: 1, x: 0, y: 0 }}
-              viewport={{ once: true, margin: "-300px" }}
-              transition={{
-                duration: 1.0,
-                delay: reducedMotion ? 0 : 0.6 + i * 0.08,
-                ease: REVEAL_EASE,
-              }}
-            >
+            <span key={`${data.number}-${i}`} className="block">
               {line.text}
-            </motion.span>
+            </span>
           ))}
-        </h2>
+        </motion.h2>
 
         {/* Bio */}
         <motion.p
           className="mt-8 max-w-[44ch] text-base leading-relaxed text-fg md:text-lg"
-          initial={reducedMotion ? false : { opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-300px" }}
-          transition={{ duration: 0.8, delay: reducedMotion ? 0 : 0.6 }}
+          style={{
+            opacity: cinematic ? reveals.bio.opacity : 1,
+            y: cinematic ? reveals.bio.y : 0,
+          }}
         >
           {data.bio}
         </motion.p>
@@ -272,10 +308,10 @@ function CoachBlock({
         {/* Pull quote */}
         <motion.figure
           className="my-10 max-w-[26ch] border-l-2 border-accent pl-5"
-          initial={reducedMotion ? false : { opacity: 0, x: -20 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, margin: "-300px" }}
-          transition={{ duration: 0.8, delay: reducedMotion ? 0 : 0.7 }}
+          style={{
+            opacity: cinematic ? reveals.quote.opacity : 1,
+            y: cinematic ? reveals.quote.y : 0,
+          }}
         >
           <blockquote
             className="text-2xl leading-tight text-fg-muted md:text-3xl"
@@ -291,19 +327,16 @@ function CoachBlock({
           </figcaption>
         </motion.figure>
 
-        {/* Stats — 3 tiles */}
-        <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-6">
+        {/* Stats — 3 tiles, single scroll-bound reveal */}
+        <motion.div
+          className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-6"
+          style={{
+            opacity: cinematic ? reveals.stats.opacity : 1,
+            y: cinematic ? reveals.stats.y : 0,
+          }}
+        >
           {data.stats.map((stat, i) => (
-            <motion.div
-              key={i}
-              initial={reducedMotion ? false : { opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-300px" }}
-              transition={{
-                duration: 0.7,
-                delay: reducedMotion ? 0 : 0.9 + i * 0.1,
-              }}
-            >
+            <div key={i}>
               <div className="mb-3 font-mono text-[10px] uppercase tracking-[0.2em] text-fg-muted md:text-xs">
                 {stat.label}
               </div>
@@ -318,9 +351,9 @@ function CoachBlock({
                 {stat.value}
               </div>
               <div aria-hidden="true" className="h-px w-12 bg-accent" />
-            </motion.div>
+            </div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </div>
   );
@@ -334,12 +367,14 @@ function CoachPortrait({
   src,
   label,
   subjectLabel,
+  opacity,
   y,
   cinematic,
 }: {
   src: string;
   label: string;
   subjectLabel: string;
+  opacity: MotionValue<number>;
   y: MotionValue<number>;
   cinematic: boolean;
 }) {
@@ -348,11 +383,10 @@ function CoachPortrait({
   return (
     <motion.div
       className="relative aspect-[4/5] overflow-hidden border border-fg/15 bg-canvas-elevated will-change-transform"
-      initial={cinematic ? { opacity: 0, y: 60 } : false}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-300px" }}
-      transition={{ duration: 1.0, delay: cinematic ? 0.6 : 0, ease: REVEAL_EASE }}
-      style={{ y: cinematic ? y : 0 }}
+      style={{
+        opacity: cinematic ? opacity : 1,
+        y: cinematic ? y : 0,
+      }}
     >
       {!failed && (
         <Image
@@ -370,7 +404,7 @@ function CoachPortrait({
         {label}
       </span>
 
-      {/* Inside-frame mono labels */}
+      {/* Inside-frame mono label */}
       <div className="absolute bottom-3 left-3 font-mono text-[10px] uppercase tracking-[0.22em] text-fg-muted">
         {subjectLabel}
       </div>
