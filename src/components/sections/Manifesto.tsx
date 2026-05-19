@@ -62,7 +62,7 @@ export default function Manifesto() {
           }
         });
       },
-      { threshold: 0.4 }
+      { threshold: 0 }
     );
 
     observer.observe(section);
