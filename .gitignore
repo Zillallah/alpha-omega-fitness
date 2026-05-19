@@ -40,3 +40,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# untracked media — keep raw videos local
+public/images/**/*.mp4
+public/images/**/*.mov
