@@ -45,8 +45,7 @@ export default function Manifesto() {
   // Exit indicator
   const exitOpacity = useTransform(scrollYProgress, [0.75, 0.85], [0, 1]);
 
-  /* Auto-play via IntersectionObserver — threshold 0 because a 300vh section
-     can never reach a higher ratio (viewport is only 33% of the target). */
+  // Auto-play video when section enters viewport
   useEffect(() => {
     const video = videoRef.current;
     const section = sectionRef.current;
@@ -56,13 +55,14 @@ export default function Manifesto() {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
+            video.currentTime = 0;
             video.play().catch(() => {});
           } else {
             video.pause();
           }
         });
       },
-      { threshold: 0 }
+      { threshold: 0.4 }
     );
 
     observer.observe(section);
