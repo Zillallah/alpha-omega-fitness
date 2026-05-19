@@ -34,6 +34,21 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* ---- Custom cursor: hide native cursor on desktop pointer devices ---- */
+html { cursor: none; }
+html *, html *:hover { cursor: none; }
+a, button, [role="button"] { cursor: none; }
+
+/* Restore native cursor for touch + reduced-motion users */
+@media (hover: none) {
+  html, html * { cursor: auto; }
+  a, button, [role="button"] { cursor: pointer; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html, html * { cursor: auto; }
+  a, button, [role="button"] { cursor: pointer; }
+}
+
 /* Lenis required reset */
 html.lenis,
 html.lenis body {
@@ -49,11 +64,11 @@ html.lenis body {
   overflow: clip;
 }
 
-/* Italic display utility — the signature */
+/* Italic display utility — the signature (now Fraunces) */
 .display-italic {
   font-family: var(--font-display);
   font-style: italic;
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: -0.04em;
   line-height: 0.88;
 }

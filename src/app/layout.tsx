@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { Inter, Instrument_Serif, JetBrains_Mono } from "next/font/google";
+import { Inter, Fraunces, JetBrains_Mono } from "next/font/google";
 import LenisProvider from "@/components/providers/LenisProvider";
+import Cursor from "@/components/cursor/Cursor";
 import "./globals.css";
 
 const inter = Inter({
@@ -9,9 +10,12 @@ const inter = Inter({
   display: "swap",
 });
 
-const instrument = Instrument_Serif({
-  weight: "400",
-  style: "italic",
+const fraunces = Fraunces({
+  // Variable font: axes require `weight: "variable"` (or omitting weight).
+  // The wght axis spans 100–900 — set per-element via font-weight in CSS.
+  weight: "variable",
+  style: ["italic"],
+  axes: ["opsz", "SOFT", "WONK"],
   subsets: ["latin"],
   variable: "--font-display-loaded",
   display: "swap",
@@ -39,10 +43,13 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${instrument.variable} ${jetbrains.variable}`}
+      className={`${inter.variable} ${fraunces.variable} ${jetbrains.variable}`}
     >
       <body>
-        <LenisProvider>{children}</LenisProvider>
+        <LenisProvider>
+          <Cursor />
+          {children}
+        </LenisProvider>
       </body>
     </html>
   );
