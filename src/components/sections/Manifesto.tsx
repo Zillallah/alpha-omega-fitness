@@ -1,223 +1,428 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useInView } from "framer-motion";
-import { useReducedMotion } from "@/lib/useReducedMotion";
-
-const REVEAL_EASE = [0.22, 1, 0.36, 1] as const;
+import {
+  motion,
+  useMotionValueEvent,
+  useScroll,
+  useSpring,
+  useTransform,
+} from "framer-motion";
 
 /**
- * Manifesto — Batch 2 / section 002.
- * 200vh sticky pause anchored by the brand video.
- * Reads correctly even without the video asset present.
+ * Manifesto — Batch 2.2 / section 002.
+ * Four-act sticky cinematic drop. The brand video scales full-bleed,
+ * plays through during Act II, holds on the tactical-compass last frame
+ * as a backdrop for three rotating manifesto statements, then exits
+ * with a yellow accent rule pointing to Coaches.
+ *
+ * Mobile: replaced with a vertical stack — autoplay-once video then
+ * four stacked statements. No sticky pinning. No scrub.
  */
 export default function Manifesto() {
   const sectionRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [reducedMotion, setReducedMotion] = useState(false);
   const [videoFailed, setVideoFailed] = useState(false);
-  const reducedMotion = useReducedMotion();
-
-  // Play only when the video frame is in view — saves cycles + bandwidth
-  const isInView = useInView(videoRef, { margin: "-20%", once: false });
 
   useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end end"],
+  });
+  const smooth = useSpring(scrollYProgress, { stiffness: 80, damping: 25 });
+
+  /* ---- Act I — video approach ---- */
+  const videoScale = useTransform(smooth, [0, 0.25], [0.4, 1.0]);
+  const videoOpacity = useTransform(smooth, [0, 0.1], [0, 1]);
+  const videoOverlayOpacity = useTransform(smooth, [0.25, 0.5], [0, 0.55]);
+
+  /* ---- Act II — statement 1 ---- */
+  const s1Opacity = useTransform(
+    smooth,
+    [0.25, 0.32, 0.48, 0.55],
+    [0, 1, 1, 0]
+  );
+  const s1Y = useTransform(smooth, [0.25, 0.32], [60, 0]);
+  const s1StrikeScaleX = useTransform(smooth, [0.32, 0.42], [0, 1]);
+
+  /* ---- Act III a — statement 2 ---- */
+  const s2Opacity = useTransform(
+    smooth,
+    [0.5, 0.56, 0.62, 0.68],
+    [0, 1, 1, 0]
+  );
+  const s2Y = useTransform(smooth, [0.5, 0.56], [40, 0]);
+  const s2StrikeScaleX = useTransform(smooth, [0.56, 0.62], [0, 1]);
+
+  /* ---- Act III b — statement 3 ---- */
+  const s3Opacity = useTransform(
+    smooth,
+    [0.65, 0.69, 0.74, 0.8],
+    [0, 1, 1, 0]
+  );
+  const s3Y = useTransform(smooth, [0.65, 0.69], [40, 0]);
+
+  /* ---- Act III c — statement 4 (Show up...) ---- */
+  const s4Opacity = useTransform(
+    smooth,
+    [0.78, 0.82, 0.86, 0.92],
+    [0, 1, 1, 0]
+  );
+  const s4Y = useTransform(smooth, [0.78, 0.82], [40, 0]);
+
+  /* ---- Tactical metadata reveal ---- */
+  const metadataOpacity = useTransform(smooth, [0.5, 0.6], [0, 1]);
+
+  /* ---- Act IV — exit ---- */
+  const exitRuleScaleX = useTransform(smooth, [0.88, 0.96], [0, 1]);
+  const exitTextOpacity = useTransform(smooth, [0.92, 0.98], [0, 1]);
+
+  /* ---- Video scrub control — scroll-bound play/pause + hold frames ---- */
+  useMotionValueEvent(smooth, "change", (latest) => {
     const v = videoRef.current;
-    if (!v) return;
-    if (reducedMotion) {
-      v.pause();
-      try {
-        v.currentTime = 0;
-      } catch {
-        /* ignore — happens if the source isn't ready yet */
+    if (!v || reducedMotion || videoFailed) return;
+
+    if (latest >= 0.22 && latest <= 0.55) {
+      // Act II play zone — play forward, no loop
+      v.loop = false;
+      if (v.paused) v.play().catch(() => {});
+    } else if (latest > 0.55) {
+      // Past Act II — hold on last frame for III & IV backdrop
+      if (!v.paused) v.pause();
+      if (
+        Number.isFinite(v.duration) &&
+        v.duration > 0 &&
+        v.currentTime < v.duration - 0.1
+      ) {
+        v.currentTime = Math.max(0, v.duration - 0.05);
       }
-      return;
-    }
-    if (isInView) {
-      v.play().catch(() => {});
     } else {
-      v.pause();
+      // Before Act II — hold on first frame
+      if (!v.paused) v.pause();
+      if (v.currentTime > 0.1) {
+        v.currentTime = 0;
+      }
     }
-  }, [isInView, reducedMotion]);
+  });
 
   return (
     <section
       ref={sectionRef}
       id="manifesto"
-      className="relative flex min-h-screen items-center overflow-hidden bg-canvas py-20 md:py-0"
+      className="relative z-10 min-h-screen overflow-hidden bg-canvas md:min-h-[250vh]"
     >
-        {/* Section number — top-right */}
-        <div className="absolute right-4 top-4 hidden items-center gap-2.5 sm:flex md:right-12 md:top-8">
-          <span aria-hidden="true" className="h-px w-7 bg-fg-muted" />
-          <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-fg-muted md:text-xs">
-            002 / MANIFESTO
-          </span>
+      {/* ============================================================ */}
+      {/*  MOBILE — vertical stack, autoplay-once video                */}
+      {/* ============================================================ */}
+      <div className="flex flex-col items-start gap-8 px-6 py-16 md:hidden">
+        <div className="font-mono text-xs uppercase tracking-[0.22em] text-fg-muted">
+          — MANIFESTO
         </div>
 
-        {/* Left margin yellow accent bar */}
-        <div
-          aria-hidden="true"
-          className="absolute bottom-[25%] left-0 top-[25%] hidden w-[2px] bg-accent md:block"
-        />
+        <div className="relative aspect-video w-full overflow-hidden border border-fg/15 bg-canvas-elevated">
+          {!videoFailed ? (
+            <video
+              src="/video/brand-loop.mp4"
+              muted
+              playsInline
+              autoPlay
+              preload="metadata"
+              aria-hidden="true"
+              className="h-full w-full object-cover"
+              onError={() => setVideoFailed(true)}
+            />
+          ) : (
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 bg-gradient-to-br from-canvas-elevated via-canvas to-canvas-elevated"
+            />
+          )}
+          <CornerBrackets />
+        </div>
 
-        {/* Vertical type running up right edge */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute right-4 top-1/2 hidden -translate-y-1/2 origin-center -rotate-90 whitespace-nowrap font-mono text-xs uppercase tracking-[0.32em] text-fg-muted md:block"
+        <h2
+          className="font-medium text-fg"
+          style={{
+            fontFamily: "var(--font-display)",
+            fontStyle: "italic",
+            fontSize: "clamp(2.5rem, 11vw, 3.5rem)",
+            lineHeight: 0.92,
+            letterSpacing: "-0.035em",
+          }}
         >
-          WHAT WE ARE — WHO WE COACH
+          This isn&apos;t a{" "}
+          <span className="relative inline-block">
+            <span className="relative z-10">gym.</span>
+            <span
+              aria-hidden="true"
+              className="absolute -left-1 -right-1 bottom-[8px] z-0 h-[12px] bg-accent"
+            />
+          </span>
+        </h2>
+
+        <h2
+          className="font-medium text-fg"
+          style={{
+            fontFamily: "var(--font-display)",
+            fontStyle: "italic",
+            fontSize: "clamp(2.5rem, 11vw, 3.5rem)",
+            lineHeight: 0.92,
+            letterSpacing: "-0.035em",
+          }}
+        >
+          It&apos;s a{" "}
+          <span className="relative inline-block">
+            <span className="relative z-10">system.</span>
+            <span
+              aria-hidden="true"
+              className="absolute -left-1 -right-1 bottom-[8px] z-0 h-[12px] bg-accent"
+            />
+          </span>
+        </h2>
+
+        <h2
+          className="font-medium text-fg"
+          style={{
+            fontFamily: "var(--font-display)",
+            fontStyle: "italic",
+            fontSize: "clamp(2.5rem, 11vw, 3.5rem)",
+            lineHeight: 0.92,
+            letterSpacing: "-0.035em",
+          }}
+        >
+          Built for <span className="text-accent">every body</span>.
+        </h2>
+
+        <p
+          className="text-fg-muted"
+          style={{
+            fontFamily: "var(--font-display)",
+            fontStyle: "italic",
+            fontSize: "clamp(1.75rem, 7vw, 2.25rem)",
+            lineHeight: 1.05,
+          }}
+        >
+          Show up. We handle the rest.
+        </p>
+
+        <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-fg-muted">
+          — THE METHOD · 8 YEARS RUNNING
         </div>
+        <div className="font-mono text-xs uppercase tracking-[0.22em] text-concrete">
+          — 34.5362°N · 117.2906°W
+        </div>
+      </div>
 
-        {/* Composition grid */}
-        <div className="grid w-full grid-cols-1 gap-10 px-6 md:grid-cols-12 md:gap-12 md:px-12">
-          {/* Left text column */}
-          <div className="md:col-span-7">
+      {/* ============================================================ */}
+      {/*  DESKTOP — sticky 4-act cinematic                            */}
+      {/* ============================================================ */}
+      <div className="hidden md:block">
+        <div className="sticky top-0 h-screen w-full overflow-hidden">
+          {/* --- Full-bleed video, scales 0.4 → 1.0 in Act I --- */}
+          <motion.div
+            className="absolute inset-0 h-full w-full will-change-transform"
+            style={{
+              scale: reducedMotion ? 1 : videoScale,
+              opacity: reducedMotion ? 1 : videoOpacity,
+            }}
+          >
+            {!videoFailed ? (
+              <video
+                ref={videoRef}
+                src="/video/brand-loop.mp4"
+                muted
+                playsInline
+                preload="metadata"
+                aria-hidden="true"
+                className="h-full w-full object-cover"
+                onError={() => setVideoFailed(true)}
+              />
+            ) : (
+              <div className="relative h-full w-full bg-gradient-to-br from-canvas-elevated via-canvas to-canvas-elevated">
+                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-mono text-xs uppercase tracking-[0.22em] text-accent">
+                  BRAND_LOOP — PENDING
+                </div>
+              </div>
+            )}
+            <CornerBrackets />
+            {/* Dark overlay (revealed in Acts III–IV for type readability) */}
             <motion.div
-              className="mb-6 font-mono text-xs uppercase tracking-[0.22em] text-fg-muted"
-              initial={reducedMotion ? false : { opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.6 }}
-            >
-              — MANIFESTO
-            </motion.div>
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 bg-canvas"
+              style={{
+                opacity: reducedMotion ? 0.55 : videoOverlayOpacity,
+              }}
+            />
+          </motion.div>
 
-            {/* H2 — italic with yellow strike on "system." */}
+          {/* --- Section number top-right (always visible) --- */}
+          <div className="absolute right-8 top-8 z-30 flex items-center gap-2.5 md:right-12">
+            <span aria-hidden="true" className="h-px w-7 bg-fg-muted" />
+            <span className="font-mono text-xs uppercase tracking-[0.22em] text-fg-muted">
+              002 / MANIFESTO
+            </span>
+          </div>
+
+          {/* --- "— MANIFESTO" eyebrow top-left (always visible) --- */}
+          <div className="absolute left-8 top-8 z-30 font-mono text-xs uppercase tracking-[0.22em] text-fg-muted md:left-12">
+            — MANIFESTO
+          </div>
+
+          {/* --- Statement 1: This isn't a gym. --- */}
+          <motion.h2
+            className="absolute left-8 top-1/2 z-30 max-w-[80vw] -translate-y-1/2 font-medium text-fg md:left-16"
+            style={{
+              fontFamily: "var(--font-display)",
+              fontStyle: "italic",
+              fontSize: "clamp(3.5rem, 10vw, 9rem)",
+              lineHeight: 0.92,
+              letterSpacing: "-0.035em",
+              opacity: reducedMotion ? 0 : s1Opacity,
+              y: reducedMotion ? 0 : s1Y,
+            }}
+          >
+            This isn&apos;t a{" "}
+            <span className="relative inline-block">
+              <span className="relative z-10">gym.</span>
+              <motion.span
+                aria-hidden="true"
+                className="absolute -left-1 -right-1 bottom-[12px] z-0 h-[14px] bg-accent"
+                style={{
+                  scaleX: reducedMotion ? 1 : s1StrikeScaleX,
+                  transformOrigin: "left",
+                }}
+              />
+            </span>
+          </motion.h2>
+
+          {/* --- Statement 2: It's a system. --- */}
+          <motion.h2
+            className="absolute left-8 top-1/2 z-30 max-w-[80vw] -translate-y-1/2 font-medium text-fg md:left-16"
+            style={{
+              fontFamily: "var(--font-display)",
+              fontStyle: "italic",
+              fontSize: "clamp(3.5rem, 10vw, 9rem)",
+              lineHeight: 0.92,
+              letterSpacing: "-0.035em",
+              opacity: reducedMotion ? 0 : s2Opacity,
+              y: reducedMotion ? 0 : s2Y,
+            }}
+          >
+            It&apos;s a{" "}
+            <span className="relative inline-block">
+              <span className="relative z-10">system.</span>
+              <motion.span
+                aria-hidden="true"
+                className="absolute -left-1 -right-1 bottom-[12px] z-0 h-[14px] bg-accent"
+                style={{
+                  scaleX: reducedMotion ? 1 : s2StrikeScaleX,
+                  transformOrigin: "left",
+                }}
+              />
+            </span>
+          </motion.h2>
+
+          {/* --- Statement 3: Built for every body. --- */}
+          <motion.h2
+            className="absolute left-8 top-1/2 z-30 max-w-[80vw] -translate-y-1/2 font-medium text-fg md:left-16"
+            style={{
+              fontFamily: "var(--font-display)",
+              fontStyle: "italic",
+              fontSize: "clamp(3.5rem, 10vw, 9rem)",
+              lineHeight: 0.92,
+              letterSpacing: "-0.035em",
+              opacity: reducedMotion ? 0 : s3Opacity,
+              y: reducedMotion ? 0 : s3Y,
+            }}
+          >
+            Built for <span className="text-accent">every body</span>.
+          </motion.h2>
+
+          {/* --- Statement 4: Show up. We handle the rest. --- */}
+          <motion.div
+            className="absolute left-1/2 top-1/2 z-30 -translate-x-1/2 -translate-y-1/2 text-center"
+            style={{
+              opacity: reducedMotion ? 0 : s4Opacity,
+              y: reducedMotion ? 0 : s4Y,
+            }}
+          >
             <h2
               className="font-medium text-fg"
               style={{
                 fontFamily: "var(--font-display)",
                 fontStyle: "italic",
-                fontSize: "clamp(2.75rem, 7vw, 6rem)",
-                letterSpacing: "-0.035em",
-                lineHeight: 0.92,
+                fontSize: "clamp(2.5rem, 6vw, 5rem)",
+                lineHeight: 1.0,
+                letterSpacing: "-0.03em",
               }}
             >
-              <motion.span
-                className="block"
-                initial={reducedMotion ? false : { opacity: 0, y: 60 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-150px" }}
-                transition={{ duration: 0.9, ease: REVEAL_EASE }}
-              >
-                This isn&apos;t a gym.
-              </motion.span>
-              <motion.span
-                className="block"
-                initial={reducedMotion ? false : { opacity: 0, y: 60 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-150px" }}
-                transition={{ duration: 0.9, delay: 0.12, ease: REVEAL_EASE }}
-              >
-                It&apos;s a{" "}
-                <span className="relative inline-block">
-                  <span className="relative z-10">system.</span>
-                  <motion.span
-                    aria-hidden="true"
-                    className="absolute -left-1 -right-1 bottom-[10px] z-0 h-[11px] bg-accent"
-                    initial={
-                      reducedMotion
-                        ? { scaleX: 1, transformOrigin: "left" }
-                        : { scaleX: 0, transformOrigin: "left" }
-                    }
-                    whileInView={{ scaleX: 1 }}
-                    viewport={{ once: true, margin: "-100px" }}
-                    transition={{
-                      delay: reducedMotion ? 0 : 0.4,
-                      duration: reducedMotion ? 0 : 0.7,
-                      ease: REVEAL_EASE,
-                    }}
-                  />
-                </span>
-              </motion.span>
+              <span className="block">Show up.</span>
+              <span className="block">We handle the rest.</span>
             </h2>
-
-            {/* Manifesto prose */}
-            <div className="mt-10 max-w-[36ch] space-y-6">
-              <motion.p
-                className="text-base leading-relaxed text-fg-muted md:text-lg"
-                initial={reducedMotion ? false : { opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.8, delay: reducedMotion ? 0 : 0.6 }}
-              >
-                Most gyms sell a membership. We coach a process.
-              </motion.p>
-              <motion.p
-                className="text-base leading-relaxed text-fg-muted md:text-lg"
-                initial={reducedMotion ? false : { opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.8, delay: reducedMotion ? 0 : 0.75 }}
-              >
-                Eight years coaching boot-camp groups in Victorville means
-                we&apos;ve seen every level — beginners scared they&apos;ll be
-                the slowest, athletes peaking for competitions, returners after
-                injuries, parents fitting workouts between work and the school
-                run. Every workout has modifications built in because every
-                body needs them. Show up. We handle the rest.
-              </motion.p>
+            <div className="mt-6 font-mono text-xs uppercase tracking-[0.22em] text-fg-muted">
+              — THE METHOD · 8 YEARS RUNNING
             </div>
+          </motion.div>
 
-            {/* GPS */}
-            <motion.div
-              className="mt-8 font-mono text-xs uppercase tracking-[0.22em] text-concrete"
-              initial={reducedMotion ? false : { opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.6, delay: reducedMotion ? 0 : 1.0 }}
-            >
-              — 34.5362°N · 117.2906°W · ALPHA OMEGA FITNESS
-            </motion.div>
-          </div>
+          {/* --- Tactical metadata block (bottom-left, reveals Act III) --- */}
+          <motion.div
+            className="absolute bottom-8 left-8 z-30 space-y-1.5 md:left-12"
+            style={{ opacity: reducedMotion ? 1 : metadataOpacity }}
+          >
+            <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+              BRAND_LOOP · 00:00:08
+            </div>
+            <div className="font-mono text-xs uppercase tracking-[0.22em] text-fg-muted">
+              — 34.5362°N · 117.2906°W
+            </div>
+          </motion.div>
 
-          {/* Right video column */}
-          <div className="md:col-span-5">
-            <motion.div
-              className="relative aspect-[4/5] overflow-hidden border border-fg/15 bg-canvas-elevated"
-              initial={reducedMotion ? false : { opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.9, ease: REVEAL_EASE }}
-            >
-              {!videoFailed ? (
-                <video
-                  ref={videoRef}
-                  src="/video/brand-loop.mp4"
-                  muted
-                  loop
-                  playsInline
-                  preload="metadata"
-                  aria-hidden="true"
-                  className="absolute inset-0 h-full w-full object-cover"
-                  onError={() => setVideoFailed(true)}
-                />
-              ) : (
-                <div
-                  aria-hidden="true"
-                  className="absolute inset-0 bg-gradient-to-br from-canvas-elevated via-canvas to-canvas-elevated"
-                />
-              )}
+          {/* --- REC indicator (top-right, below section number) --- */}
+          <motion.div
+            className="absolute right-8 top-16 z-30 flex items-center gap-2 md:right-12"
+            style={{ opacity: reducedMotion ? 1 : metadataOpacity }}
+          >
+            <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-fg-muted">
+              REC
+            </span>
+            <span
+              aria-hidden="true"
+              className="h-1.5 w-1.5 animate-pulse bg-accent"
+            />
+          </motion.div>
 
-              <CornerBrackets />
+          {/* --- Act IV: Exit rule (horizontal yellow line) --- */}
+          <motion.div
+            aria-hidden="true"
+            className="absolute bottom-20 left-8 right-8 z-30 h-px bg-accent md:left-12 md:right-12"
+            style={{
+              scaleX: reducedMotion ? 0 : exitRuleScaleX,
+              transformOrigin: "left",
+            }}
+          />
 
-              <div className="absolute bottom-3 left-3 font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
-                {videoFailed ? "BRAND_LOOP — PENDING" : "BRAND_LOOP · 00:00:08"}
-              </div>
-              <div className="absolute right-3 top-3 flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-fg-muted">
-                REC
-                <span
-                  aria-hidden="true"
-                  className="inline-block h-1.5 w-1.5 animate-pulse bg-accent"
-                />
-              </div>
-            </motion.div>
-          </div>
+          {/* --- Act IV: Exit pointer text --- */}
+          <motion.div
+            className="absolute bottom-12 left-8 z-30 font-mono text-xs uppercase tracking-[0.22em] text-fg-muted md:left-12"
+            style={{ opacity: reducedMotion ? 0 : exitTextOpacity }}
+          >
+            — 003 / WHO WE ARE [VINCE &amp; ELENA] →
+          </motion.div>
         </div>
+      </div>
     </section>
   );
 }
 
-/** Tactical L-bracket corners around the video frame. */
+/** Tactical L-bracket corners. */
 function CornerBrackets() {
   const arms = "w-5 h-5 border-accent";
   return (

@@ -78,6 +78,7 @@ const ELENA: CoachData = {
  */
 export default function Coaches() {
   const sectionRef = useRef<HTMLElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const reducedMotion = useReducedMotion();
   const [isMobile, setIsMobile] = useState(false);
 
@@ -88,6 +89,17 @@ export default function Coaches() {
     return () => window.removeEventListener("resize", check);
   }, []);
 
+  /* ---- Stack-reveal: section rises from below as user scrolls toward it.
+     Wrapper occupies natural document flow; section uses y-transform to
+     visually slide up. Effect: Coaches covers Manifesto's exit zone from
+     below, like a card being dealt over it. */
+  const { scrollYProgress: wrapperProgress } = useScroll({
+    target: wrapperRef,
+    offset: ["start end", "start start"],
+  });
+  const stackY = useTransform(wrapperProgress, [0, 1], ["100vh", "0vh"]);
+
+  /* ---- Internal Vince/Elena choreography ---- */
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end end"],
@@ -101,10 +113,12 @@ export default function Coaches() {
   const cinematic = !isMobile && !reducedMotion;
 
   return (
-    <section
+    <div ref={wrapperRef} className="relative">
+    <motion.section
       ref={sectionRef}
       id="coaches"
-      className="relative min-h-screen overflow-hidden bg-canvas md:min-h-[180vh]"
+      className="relative z-20 min-h-screen overflow-hidden bg-canvas md:min-h-[180vh]"
+      style={{ y: cinematic ? stackY : 0 }}
     >
       {/* Section number — top-right, persistent */}
       <div className="absolute right-4 top-4 z-20 flex items-center gap-2.5 md:right-12 md:top-8">
@@ -155,7 +169,8 @@ export default function Coaches() {
           cinematic={cinematic}
         />
       </motion.div>
-    </section>
+    </motion.section>
+    </div>
   );
 }
 
