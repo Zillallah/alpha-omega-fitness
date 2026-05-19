@@ -212,7 +212,7 @@ function CoachBlock({
 
         {/* Italic display name */}
         <h2
-          className="mt-6 font-medium text-fg md:mt-8"
+          className="font-medium text-fg"
           style={{
             fontFamily: "var(--font-display)",
             fontStyle: "italic",
