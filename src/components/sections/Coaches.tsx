@@ -113,7 +113,7 @@ function CoachEclipse({ data, zIndex }: { data: CoachData; zIndex: number }) {
       style={{ zIndex }}
     >
       <motion.section
-        className="relative min-h-[180vh] overflow-hidden bg-canvas"
+        className="relative min-h-[400vh] overflow-hidden bg-canvas"
         style={{
           y: reducedMotion || isMobile ? 0 : slideY,
         }}
