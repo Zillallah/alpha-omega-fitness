@@ -78,7 +78,7 @@ export default function FAQ() {
   return (
     <div
       ref={wrapperRef}
-      className="relative md:-mt-[100vh]"
+      className="pointer-events-none relative md:-mt-[100vh]"
       style={{ zIndex: 70 }}
     >
       <motion.section
@@ -89,7 +89,7 @@ export default function FAQ() {
         viewport={{ once: true, margin: "-5% 0px -85% 0px" }}
         transition={{ duration: 2.7, ease: [0.4, 0, 0.2, 1] }}
       >
-        <div className="sticky top-0 flex h-screen flex-col px-6 py-12 md:px-12 md:py-16">
+        <div className="pointer-events-auto sticky top-0 flex h-screen flex-col px-6 py-12 md:px-12 md:py-16">
           {/* Top-left eyebrow */}
           <div className="font-mono text-xs uppercase tracking-[0.22em] text-fg-muted">
             — FREQUENTLY ASKED

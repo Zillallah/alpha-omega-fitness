@@ -29,7 +29,7 @@ export default function Footer() {
   return (
     <div
       ref={wrapperRef}
-      className="relative md:-mt-[100vh]"
+      className="relative"
       style={{ zIndex: 80 }}
     >
       <motion.footer

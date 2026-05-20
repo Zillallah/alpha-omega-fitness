@@ -101,7 +101,7 @@ function CoachEclipse({ data, zIndex }: { data: CoachData; zIndex: number }) {
   return (
     <div
       ref={wrapperRef}
-      className="relative md:-mt-[100vh]"
+      className="pointer-events-none relative md:-mt-[100vh]"
       style={{ zIndex }}
     >
       <motion.section
@@ -135,7 +135,7 @@ function CoachEclipse({ data, zIndex }: { data: CoachData; zIndex: number }) {
         </div>
 
         {/* Main content grid */}
-        <div className="sticky top-0 flex h-screen items-center px-6 py-12 md:px-12 md:py-16">
+        <div className="pointer-events-auto sticky top-0 flex h-screen items-center px-6 py-12 md:px-12 md:py-16">
           <div className="mx-auto grid w-full max-w-[1400px] grid-cols-1 items-center gap-8 md:grid-cols-12 md:gap-12">
             {/* Portrait column */}
             <motion.div
