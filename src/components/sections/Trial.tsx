@@ -76,7 +76,7 @@ export default function Trial() {
         initial={reducedMotion || isMobile ? { y: 0 } : { y: "100vh" }}
         whileInView={{ y: 0 }}
         viewport={{ once: true, margin: "-5% 0px -85% 0px" }}
-        transition={{ duration: 2.7, ease: [0.4, 0, 0.2, 1] }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       >
         <div className="pointer-events-auto sticky top-0 flex h-screen flex-col px-6 py-12 md:px-12 md:py-16">
           {/* Top-left eyebrow */}

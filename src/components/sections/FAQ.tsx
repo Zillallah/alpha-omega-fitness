@@ -83,13 +83,13 @@ export default function FAQ() {
     >
       <motion.section
         id="faq"
-        className="relative min-h-[125vh] overflow-hidden bg-canvas"
+        className="relative overflow-hidden bg-canvas"
         initial={reducedMotion || isMobile ? { y: 0 } : { y: "100vh" }}
         whileInView={{ y: 0 }}
         viewport={{ once: true, margin: "-5% 0px -85% 0px" }}
-        transition={{ duration: 2.7, ease: [0.4, 0, 0.2, 1] }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       >
-        <div className="pointer-events-auto sticky top-0 flex h-screen flex-col px-6 py-12 md:px-12 md:py-16">
+        <div className="pointer-events-auto flex min-h-screen flex-col px-6 py-16 md:px-12 md:py-24">
           {/* Top-left eyebrow */}
           <div className="font-mono text-xs uppercase tracking-[0.22em] text-fg-muted">
             — FREQUENTLY ASKED
@@ -129,7 +129,7 @@ export default function FAQ() {
           {/* FAQ list */}
           <motion.div
             {...fadeUp(0.25)}
-            className="mx-auto mt-8 w-full max-w-[900px] flex-1 overflow-y-auto md:mt-10"
+            className="mx-auto mt-8 w-full max-w-[900px] md:mt-10"
           >
             <ul className="divide-y divide-fg/15 border-y border-fg/15">
               {faqs.map((faq, i) => (
