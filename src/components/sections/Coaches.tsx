@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 
@@ -75,6 +75,13 @@ export default function Coaches() {
 
 function CoachEclipse({ data, zIndex }: { data: CoachData; zIndex: number }) {
   const wrapperRef = useRef<HTMLDivElement>(null);
+
+  // Scroll-tracked exit fade — opacity 1 → 0 as user scrolls past the wrapper
+  const { scrollYProgress } = useScroll({
+    target: wrapperRef,
+    offset: ["start start", "end start"],
+  });
+  const exitOpacity = useTransform(scrollYProgress, [0.3, 0.7], [1, 0]);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -135,7 +142,10 @@ function CoachEclipse({ data, zIndex }: { data: CoachData; zIndex: number }) {
         </div>
 
         {/* Main content grid */}
-        <div className="pointer-events-auto sticky top-0 flex h-screen items-center px-6 py-12 md:px-12 md:py-16">
+        <motion.div
+          className="pointer-events-auto sticky top-0 flex h-screen items-center px-6 py-12 md:px-12 md:py-16"
+          style={{ opacity: exitOpacity }}
+        >
           <div className="mx-auto grid w-full max-w-[1400px] grid-cols-1 items-center gap-8 md:grid-cols-12 md:gap-12">
             {/* Portrait column */}
             <motion.div
@@ -281,7 +291,7 @@ function CoachEclipse({ data, zIndex }: { data: CoachData; zIndex: number }) {
               </motion.div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </motion.section>
     </div>
   );
