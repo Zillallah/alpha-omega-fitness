@@ -76,7 +76,7 @@ export default function Trial() {
         initial={reducedMotion || isMobile ? { y: 0 } : { y: "100vh" }}
         whileInView={{ y: 0 }}
         viewport={{ once: true, margin: "-15% 0px -40% 0px" }}
-        transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 1.8, ease: [0.4, 0, 0.2, 1] }}
       >
         <div className="sticky top-0 flex h-screen flex-col px-6 py-12 md:px-12 md:py-16">
           {/* Top-left eyebrow */}

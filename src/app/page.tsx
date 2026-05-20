@@ -4,6 +4,8 @@ import Coaches from "@/components/sections/Coaches";
 import Programs from "@/components/sections/Programs";
 import Schedule from "@/components/sections/Schedule";
 import Trial from "@/components/sections/Trial";
+import FAQ from "@/components/sections/FAQ";
+import Footer from "@/components/sections/Footer";
 
 export default function Home() {
   return (
@@ -14,7 +16,8 @@ export default function Home() {
       <Programs />
       <Schedule />
       <Trial />
-      {/* Batch 5: FAQ + Footer */}
+      <FAQ />
+      <Footer />
     </main>
   );
 }
