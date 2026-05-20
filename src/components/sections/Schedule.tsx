@@ -45,7 +45,7 @@ export default function Schedule() {
     target: wrapperRef,
     offset: ["start start", "end start"],
   });
-  const exitOpacity = useTransform(scrollYProgress, [0.3, 0.7], [1, 0]);
+  const exitOpacity = useTransform(scrollYProgress, [0.55, 0.9], [1, 0]);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -63,7 +63,7 @@ export default function Schedule() {
   const fadeUp = (delay: number = 0) => ({
     initial: reducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 },
     whileInView: { opacity: 1, y: 0 },
-    viewport: { once: true, margin: "-100px" },
+    viewport: { once: false, margin: "-100px" },
     transition: { duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] as const },
   });
 
@@ -78,7 +78,7 @@ export default function Schedule() {
         className="relative min-h-[175vh] overflow-hidden bg-canvas"
         initial={reducedMotion || isMobile ? { y: 0 } : { y: "100vh" }}
         whileInView={{ y: 0 }}
-        viewport={{ once: true, margin: "-5% 0px -85% 0px" }}
+        viewport={{ once: false, margin: "-5% 0px -85% 0px" }}
         transition={{ duration: 2.5, ease: [0.05, 0.7, 0.1, 1] }}
       >
         <motion.div

@@ -67,13 +67,21 @@ const elenaData: CoachData = {
 export default function Coaches() {
   return (
     <>
-      <CoachEclipse data={vinceData} zIndex={20} />
-      <CoachEclipse data={elenaData} zIndex={30} />
+      <CoachEclipse data={vinceData} zIndex={20} marginTop="md:-mt-[40vh]" />
+      <CoachEclipse data={elenaData} zIndex={30} marginTop="md:-mt-[100vh]" />
     </>
   );
 }
 
-function CoachEclipse({ data, zIndex }: { data: CoachData; zIndex: number }) {
+function CoachEclipse({
+  data,
+  zIndex,
+  marginTop,
+}: {
+  data: CoachData;
+  zIndex: number;
+  marginTop: string;
+}) {
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   // Scroll-tracked exit fade — opacity 1 → 0 as user scrolls past the wrapper
@@ -81,7 +89,7 @@ function CoachEclipse({ data, zIndex }: { data: CoachData; zIndex: number }) {
     target: wrapperRef,
     offset: ["start start", "end start"],
   });
-  const exitOpacity = useTransform(scrollYProgress, [0.3, 0.7], [1, 0]);
+  const exitOpacity = useTransform(scrollYProgress, [0.55, 0.9], [1, 0]);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -99,7 +107,7 @@ function CoachEclipse({ data, zIndex }: { data: CoachData; zIndex: number }) {
   const fadeUp = (delay: number = 0) => ({
     initial: reducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 },
     whileInView: { opacity: 1, y: 0 },
-    viewport: { once: true, margin: "-100px" },
+    viewport: { once: false, margin: "-100px" },
     transition: { duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] as const },
   });
 
@@ -108,14 +116,14 @@ function CoachEclipse({ data, zIndex }: { data: CoachData; zIndex: number }) {
   return (
     <div
       ref={wrapperRef}
-      className="pointer-events-none relative md:-mt-[100vh]"
+      className={`pointer-events-none relative ${marginTop}`}
       style={{ zIndex }}
     >
       <motion.section
         className="relative min-h-[175vh] overflow-hidden bg-canvas"
         initial={reducedMotion || isMobile ? { y: 0 } : { y: "100vh" }}
         whileInView={{ y: 0 }}
-        viewport={{ once: true, margin: "-5% 0px -85% 0px" }}
+        viewport={{ once: false, margin: "-5% 0px -85% 0px" }}
         transition={{ duration: 2.5, ease: [0.05, 0.7, 0.1, 1] }}
       >
         {/* Top-right section number */}

@@ -71,7 +71,7 @@ export default function FAQ() {
   const fadeUp = (delay: number = 0) => ({
     initial: reducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 },
     whileInView: { opacity: 1, y: 0 },
-    viewport: { once: true, margin: "-100px" },
+    viewport: { once: false, margin: "-100px" },
     transition: { duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] as const },
   });
 
@@ -86,7 +86,7 @@ export default function FAQ() {
         className="relative overflow-hidden bg-canvas"
         initial={reducedMotion || isMobile ? { y: 0 } : { y: "100vh" }}
         whileInView={{ y: 0 }}
-        viewport={{ once: true, margin: "-5% 0px -85% 0px" }}
+        viewport={{ once: false, margin: "-5% 0px -85% 0px" }}
         transition={{ duration: 2.5, ease: [0.05, 0.7, 0.1, 1] }}
       >
         <div className="pointer-events-auto flex min-h-screen flex-col px-6 py-16 md:px-12 md:py-24">
