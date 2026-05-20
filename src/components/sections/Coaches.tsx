@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 
@@ -89,14 +89,6 @@ function CoachEclipse({ data, zIndex }: { data: CoachData; zIndex: number }) {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  const { scrollYProgress } = useScroll({
-    target: wrapperRef,
-    offset: ["start end", "start start"],
-  });
-
-  // Section slides UP from below — eclipsing what came before
-  const slideY = useTransform(scrollYProgress, [0, 1], ["100vh", "0vh"]);
-
   const fadeUp = (delay: number = 0) => ({
     initial: reducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 },
     whileInView: { opacity: 1, y: 0 },
@@ -114,9 +106,10 @@ function CoachEclipse({ data, zIndex }: { data: CoachData; zIndex: number }) {
     >
       <motion.section
         className="relative min-h-[300vh] overflow-hidden bg-canvas"
-        style={{
-          y: reducedMotion || isMobile ? 0 : slideY,
-        }}
+        initial={reducedMotion || isMobile ? { y: 0 } : { y: "100vh" }}
+        whileInView={{ y: 0 }}
+        viewport={{ once: true, margin: "-15% 0px -40% 0px" }}
+        transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
       >
         {/* Top-right section number */}
         <div className="absolute right-8 top-8 z-30 flex items-center gap-2.5 md:right-12">
