@@ -3,6 +3,7 @@ import Manifesto from "@/components/sections/Manifesto";
 import Coaches from "@/components/sections/Coaches";
 import Programs from "@/components/sections/Programs";
 import Schedule from "@/components/sections/Schedule";
+import Trial from "@/components/sections/Trial";
 
 export default function Home() {
   return (
@@ -12,7 +13,7 @@ export default function Home() {
       <Coaches />
       <Programs />
       <Schedule />
-      {/* Batch 4: Stories + Trial CTA + Pricing */}
+      <Trial />
       {/* Batch 5: FAQ + Footer */}
     </main>
   );

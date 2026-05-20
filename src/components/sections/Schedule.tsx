@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
 type ClassType = "GROUP" | "HYROX" | null;
@@ -53,13 +53,6 @@ export default function Schedule() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  const { scrollYProgress } = useScroll({
-    target: wrapperRef,
-    offset: ["start end", "start start"],
-  });
-
-  const slideY = useTransform(scrollYProgress, [0, 1], ["100vh", "0vh"]);
-
   const fadeUp = (delay: number = 0) => ({
     initial: reducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 },
     whileInView: { opacity: 1, y: 0 },
@@ -75,10 +68,11 @@ export default function Schedule() {
     >
       <motion.section
         id="schedule"
-        className="relative min-h-[300vh] overflow-hidden bg-canvas"
-        style={{
-          y: reducedMotion || isMobile ? 0 : slideY,
-        }}
+        className="relative min-h-[175vh] overflow-hidden bg-canvas"
+        initial={reducedMotion || isMobile ? { y: 0 } : { y: "100vh" }}
+        whileInView={{ y: 0 }}
+        viewport={{ once: true, margin: "-15% 0px -40% 0px" }}
+        transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
       >
         <div className="sticky top-0 flex h-screen flex-col px-6 py-12 md:px-12 md:py-16">
           {/* Top-left eyebrow */}

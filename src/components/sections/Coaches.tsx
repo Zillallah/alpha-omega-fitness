@@ -105,11 +105,11 @@ function CoachEclipse({ data, zIndex }: { data: CoachData; zIndex: number }) {
       style={{ zIndex }}
     >
       <motion.section
-        className="relative min-h-[300vh] overflow-hidden bg-canvas"
+        className="relative min-h-[175vh] overflow-hidden bg-canvas"
         initial={reducedMotion || isMobile ? { y: 0 } : { y: "100vh" }}
         whileInView={{ y: 0 }}
         viewport={{ once: true, margin: "-15% 0px -40% 0px" }}
-        transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
       >
         {/* Top-right section number */}
         <div className="absolute right-8 top-8 z-30 flex items-center gap-2.5 md:right-12">
