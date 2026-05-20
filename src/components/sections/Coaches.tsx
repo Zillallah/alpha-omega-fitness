@@ -67,8 +67,8 @@ const elenaData: CoachData = {
 export default function Coaches() {
   return (
     <>
-      <CoachEclipse data={vinceData} zIndex={20} marginTop="md:-mt-[40vh]" />
-      <CoachEclipse data={elenaData} zIndex={30} marginTop="md:-mt-[100vh]" />
+      <CoachEclipse data={vinceData} zIndex={20} />
+      <CoachEclipse data={elenaData} zIndex={30} />
     </>
   );
 }
@@ -76,11 +76,9 @@ export default function Coaches() {
 function CoachEclipse({
   data,
   zIndex,
-  marginTop,
 }: {
   data: CoachData;
   zIndex: number;
-  marginTop: string;
 }) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [reducedMotion, setReducedMotion] = useState(false);
@@ -109,11 +107,12 @@ function CoachEclipse({
   return (
     <div
       ref={wrapperRef}
-      className={`pointer-events-none relative ${marginTop}`}
+      className="pointer-events-none relative"
       style={{ zIndex }}
     >
       <section
         className="relative min-h-[175vh] overflow-hidden bg-canvas"
+        style={{ zIndex }}
       >
         {/* Top-right section number */}
         <div className="absolute right-8 top-8 z-30 flex items-center gap-2.5 md:right-12">
@@ -139,7 +138,7 @@ function CoachEclipse({
         </div>
 
         {/* Main content grid */}
-        <div className="pointer-events-auto sticky top-0 flex h-screen items-center px-6 py-12 md:px-12 md:py-16">
+        <div className="pointer-events-auto sticky top-0 flex min-h-screen items-center bg-canvas px-6 py-12 md:px-12 md:py-16">
           <div className="mx-auto grid w-full max-w-[1400px] grid-cols-1 items-center gap-8 md:grid-cols-12 md:gap-12">
             {/* Portrait column */}
             <motion.div

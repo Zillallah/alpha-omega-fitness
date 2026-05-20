@@ -63,14 +63,14 @@ export default function Schedule() {
   return (
     <div
       ref={wrapperRef}
-      className="pointer-events-none relative md:-mt-[100vh]"
+      className="pointer-events-none relative"
       style={{ zIndex: 50 }}
     >
       <section
         id="schedule"
-        className="relative min-h-[175vh] overflow-hidden bg-canvas"
+        className="relative z-50 min-h-[175vh] overflow-hidden bg-canvas"
       >
-        <div className="pointer-events-auto sticky top-0 flex h-screen flex-col px-6 py-12 md:px-12 md:py-16">
+        <div className="pointer-events-auto sticky top-0 flex min-h-screen flex-col bg-canvas px-6 py-12 md:px-12 md:py-16">
           {/* Top-left eyebrow */}
           <div className="font-mono text-xs uppercase tracking-[0.22em] text-fg-muted">
             — SCHEDULE

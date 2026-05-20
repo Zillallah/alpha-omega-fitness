@@ -78,12 +78,12 @@ export default function FAQ() {
   return (
     <div
       ref={wrapperRef}
-      className="pointer-events-none relative md:-mt-[100vh]"
+      className="pointer-events-none relative"
       style={{ zIndex: 70 }}
     >
       <motion.section
         id="faq"
-        className="relative overflow-hidden bg-canvas"
+        className="relative z-[70] overflow-hidden bg-canvas"
         initial={reducedMotion || isMobile ? { y: 0 } : { y: "100vh" }}
         whileInView={{ y: 0 }}
         viewport={{ once: false, margin: "-5% 0px -85% 0px" }}

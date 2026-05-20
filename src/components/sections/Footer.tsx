@@ -34,7 +34,7 @@ export default function Footer() {
     >
       <footer
         id="contact"
-        className="relative overflow-hidden bg-canvas"
+        className="relative z-[80] overflow-hidden bg-canvas"
       >
         <div className="relative px-6 py-16 md:px-12 md:py-20">
           {/* Top-left eyebrow */}

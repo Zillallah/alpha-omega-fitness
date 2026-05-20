@@ -38,7 +38,7 @@ const programs: Program[] = [
     name: "HYROX",
     tagline: "Official Affiliate · Saturday mornings",
     description:
-      "Race-format fitness. Eight 1km runs paired with eight functional stations. As an Official HYROX Gym Affiliate, AO programs these sessions to the exact race standard — whether you're competing or just want the toughest workout in Victor Valley.",
+      "Race-format fitness. Eight 1km runs paired with eight functional stations. As an Official HYROX Gym Affiliate, AO trains these sessions to race standard — whether you're competing or just want the hardest hour of your week.",
     primaryPrice: "INCLUDED",
     primaryUnit: "WITH ANY MEMBERSHIP",
     tiers: [
@@ -89,14 +89,14 @@ export default function Programs() {
   return (
     <div
       ref={wrapperRef}
-      className="pointer-events-none relative md:-mt-[100vh]"
+      className="pointer-events-none relative"
       style={{ zIndex: 40 }}
     >
       <section
         id="programs"
-        className="relative min-h-[175vh] overflow-hidden bg-canvas"
+        className="relative z-40 min-h-[175vh] overflow-hidden bg-canvas"
       >
-        <div className="pointer-events-auto sticky top-0 flex h-screen flex-col px-6 py-12 md:px-12 md:py-16">
+        <div className="pointer-events-auto sticky top-0 flex min-h-screen flex-col bg-canvas px-6 py-12 md:px-12 md:py-16">
           {/* Top-left eyebrow */}
           <div className="font-mono text-xs uppercase tracking-[0.22em] text-fg-muted">
             — PROGRAMS
@@ -150,7 +150,7 @@ export default function Programs() {
 
           {/* Programs grid */}
           <div className="mx-auto mt-8 flex w-full max-w-[1400px] flex-1 items-center md:mt-12">
-            <div className="grid w-full grid-cols-1 gap-6 md:grid-cols-3 md:gap-6">
+            <div className="grid w-full auto-rows-fr grid-cols-1 gap-6 md:grid-cols-3 md:gap-6">
               {programs.map((program, i) => (
                 <ProgramCard
                   key={program.index}
