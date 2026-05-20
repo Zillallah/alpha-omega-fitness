@@ -144,40 +144,46 @@ function CoachEclipse({ data, zIndex }: { data: CoachData; zIndex: number }) {
                 isLeft ? "md:order-1" : "md:order-2"
               }`}
             >
-              <div
-                className="relative mx-auto w-full max-w-[320px] overflow-hidden border border-fg/15 bg-canvas-elevated md:max-w-none md:w-auto"
-                style={{ aspectRatio: "4 / 5" }}
-              >
-                <Image
-                  src={data.portraitSrc}
-                  alt={`${data.firstName}${data.lastName ? ` ${data.lastName}` : ""}, ${data.role}`}
-                  fill
-                  sizes="(max-width: 768px) 320px, 50vw"
-                  className="object-cover"
-                  style={{ objectFit: "cover", objectPosition: "50% 5%" }}
-                  priority
-                />
-                {/* Subject label */}
-                <div className="absolute bottom-3 left-3 z-10 bg-canvas/70 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.22em] text-fg-muted backdrop-blur-sm">
-                  SUBJECT_{data.index} · COACH
+              {/* Outer: width cap + centering on mobile, unconstrained on desktop */}
+              <div className="relative mx-auto w-full max-w-[300px] md:mx-0 md:max-w-none">
+                {/* Inner: dedicated aspect-ratio holder. Nothing in the cascade can override an inline style on a fresh wrapper div. */}
+                <div
+                  className="relative w-full overflow-hidden border border-fg/15 bg-canvas-elevated"
+                  style={{ aspectRatio: "4 / 5" }}
+                >
+                  <Image
+                    src={data.portraitSrc}
+                    alt={`${data.firstName}${data.lastName ? ` ${data.lastName}` : ""}, ${data.role}`}
+                    fill
+                    sizes="(max-width: 768px) 300px, 50vw"
+                    priority
+                    style={{
+                      objectFit: "cover",
+                      objectPosition: "center 0%",
+                    }}
+                  />
+                  {/* Subject label */}
+                  <div className="absolute bottom-3 left-3 z-10 bg-canvas/70 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.22em] text-fg-muted backdrop-blur-sm">
+                    SUBJECT_{data.index} · COACH
+                  </div>
+                  {/* Corner brackets on portrait */}
+                  <div
+                    aria-hidden="true"
+                    className="absolute left-2 top-2 h-4 w-4 border-l border-t border-accent"
+                  />
+                  <div
+                    aria-hidden="true"
+                    className="absolute right-2 top-2 h-4 w-4 border-r border-t border-accent"
+                  />
+                  <div
+                    aria-hidden="true"
+                    className="absolute bottom-2 left-2 h-4 w-4 border-b border-l border-accent"
+                  />
+                  <div
+                    aria-hidden="true"
+                    className="absolute bottom-2 right-2 h-4 w-4 border-b border-r border-accent"
+                  />
                 </div>
-                {/* Corner brackets on portrait */}
-                <div
-                  aria-hidden="true"
-                  className="absolute left-2 top-2 h-4 w-4 border-l border-t border-accent"
-                />
-                <div
-                  aria-hidden="true"
-                  className="absolute right-2 top-2 h-4 w-4 border-r border-t border-accent"
-                />
-                <div
-                  aria-hidden="true"
-                  className="absolute bottom-2 left-2 h-4 w-4 border-b border-l border-accent"
-                />
-                <div
-                  aria-hidden="true"
-                  className="absolute bottom-2 right-2 h-4 w-4 border-b border-r border-accent"
-                />
               </div>
             </motion.div>
 
