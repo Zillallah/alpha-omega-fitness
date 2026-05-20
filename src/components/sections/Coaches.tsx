@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 
@@ -83,13 +83,6 @@ function CoachEclipse({
   marginTop: string;
 }) {
   const wrapperRef = useRef<HTMLDivElement>(null);
-
-  // Scroll-tracked exit fade — opacity 1 → 0 as user scrolls past the wrapper
-  const { scrollYProgress } = useScroll({
-    target: wrapperRef,
-    offset: ["start start", "end start"],
-  });
-  const exitOpacity = useTransform(scrollYProgress, [0.55, 0.9], [1, 0]);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -119,12 +112,8 @@ function CoachEclipse({
       className={`pointer-events-none relative ${marginTop}`}
       style={{ zIndex }}
     >
-      <motion.section
+      <section
         className="relative min-h-[175vh] overflow-hidden bg-canvas"
-        initial={reducedMotion || isMobile ? { y: 0 } : { y: "100vh" }}
-        whileInView={{ y: 0 }}
-        viewport={{ once: false, margin: "-5% 0px -85% 0px" }}
-        transition={{ duration: 2.5, ease: [0.05, 0.7, 0.1, 1] }}
       >
         {/* Top-right section number */}
         <div className="absolute right-8 top-8 z-30 flex items-center gap-2.5 md:right-12">
@@ -150,10 +139,7 @@ function CoachEclipse({
         </div>
 
         {/* Main content grid */}
-        <motion.div
-          className="pointer-events-auto sticky top-0 flex h-screen items-center px-6 py-12 md:px-12 md:py-16"
-          style={{ opacity: exitOpacity }}
-        >
+        <div className="pointer-events-auto sticky top-0 flex h-screen items-center px-6 py-12 md:px-12 md:py-16">
           <div className="mx-auto grid w-full max-w-[1400px] grid-cols-1 items-center gap-8 md:grid-cols-12 md:gap-12">
             {/* Portrait column */}
             <motion.div
@@ -299,8 +285,8 @@ function CoachEclipse({
               </motion.div>
             </div>
           </div>
-        </motion.div>
-      </motion.section>
+        </div>
+      </section>
     </div>
   );
 }

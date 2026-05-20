@@ -32,13 +32,9 @@ export default function Footer() {
       className="relative"
       style={{ zIndex: 80 }}
     >
-      <motion.footer
+      <footer
         id="contact"
         className="relative overflow-hidden bg-canvas"
-        initial={reducedMotion || isMobile ? { y: 0 } : { y: "100vh" }}
-        whileInView={{ y: 0 }}
-        viewport={{ once: false, margin: "-5% 0px -85% 0px" }}
-        transition={{ duration: 2.5, ease: [0.05, 0.7, 0.1, 1] }}
       >
         <div className="relative px-6 py-16 md:px-12 md:py-20">
           {/* Top-left eyebrow */}
@@ -210,7 +206,7 @@ export default function Footer() {
             </p>
           </motion.div>
         </div>
-      </motion.footer>
+      </footer>
     </div>
   );
 }

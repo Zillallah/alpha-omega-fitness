@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
 type ClassType = "GROUP" | "HYROX" | null;
@@ -39,13 +39,6 @@ type DayKey = (typeof days)[number]["key"];
 
 export default function Schedule() {
   const wrapperRef = useRef<HTMLDivElement>(null);
-
-  // Scroll-tracked exit fade — opacity 1 → 0 as user scrolls past the wrapper
-  const { scrollYProgress } = useScroll({
-    target: wrapperRef,
-    offset: ["start start", "end start"],
-  });
-  const exitOpacity = useTransform(scrollYProgress, [0.55, 0.9], [1, 0]);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -73,18 +66,11 @@ export default function Schedule() {
       className="pointer-events-none relative md:-mt-[100vh]"
       style={{ zIndex: 50 }}
     >
-      <motion.section
+      <section
         id="schedule"
         className="relative min-h-[175vh] overflow-hidden bg-canvas"
-        initial={reducedMotion || isMobile ? { y: 0 } : { y: "100vh" }}
-        whileInView={{ y: 0 }}
-        viewport={{ once: false, margin: "-5% 0px -85% 0px" }}
-        transition={{ duration: 2.5, ease: [0.05, 0.7, 0.1, 1] }}
       >
-        <motion.div
-          className="pointer-events-auto sticky top-0 flex h-screen flex-col px-6 py-12 md:px-12 md:py-16"
-          style={{ opacity: exitOpacity }}
-        >
+        <div className="pointer-events-auto sticky top-0 flex h-screen flex-col px-6 py-12 md:px-12 md:py-16">
           {/* Top-left eyebrow */}
           <div className="font-mono text-xs uppercase tracking-[0.22em] text-fg-muted">
             — SCHEDULE
@@ -253,8 +239,8 @@ export default function Schedule() {
               CLAIM YOUR 5-DAY FREE TRIAL →
             </a>
           </motion.div>
-        </motion.div>
-      </motion.section>
+        </div>
+      </section>
     </div>
   );
 }
