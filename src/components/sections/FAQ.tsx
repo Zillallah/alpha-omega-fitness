@@ -47,7 +47,7 @@ const faqs: FAQItem[] = [
   {
     question: "Where are you located?",
     answer:
-      "Victorville, CA. 34.5362°N · 117.2906°W. Exact address and parking info on the contact page below.",
+      "12284 Industrial Blvd, Suite B-6, Victorville, CA 92395. Just off Hwy 18 in the High Desert. Parking is free and there's plenty of it.",
   },
 ];
 

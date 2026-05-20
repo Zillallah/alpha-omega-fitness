@@ -145,15 +145,16 @@ function CoachEclipse({ data, zIndex }: { data: CoachData; zIndex: number }) {
               }`}
             >
               <div
-                className="relative w-full overflow-hidden border border-fg/15 bg-canvas-elevated"
+                className="relative mx-auto w-full max-w-[320px] overflow-hidden border border-fg/15 bg-canvas-elevated md:max-w-none md:w-auto"
                 style={{ aspectRatio: "4 / 5" }}
               >
                 <Image
                   src={data.portraitSrc}
                   alt={`${data.firstName}${data.lastName ? ` ${data.lastName}` : ""}, ${data.role}`}
                   fill
-                  sizes="(max-width: 768px) 100vw, 40vw"
-                  style={{ objectFit: "cover", objectPosition: "50% 12%" }}
+                  sizes="(max-width: 768px) 320px, 50vw"
+                  className="object-cover"
+                  style={{ objectFit: "cover", objectPosition: "50% 5%" }}
                   priority
                 />
                 {/* Subject label */}

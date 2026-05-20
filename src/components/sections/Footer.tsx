@@ -75,7 +75,7 @@ export default function Footer() {
               <div className="relative aspect-[16/10] w-full overflow-hidden border border-fg/15 bg-canvas-elevated">
                 <iframe
                   title="Alpha Omega Fitness location · Victorville, CA"
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d12894.589826398056!2d-117.29062492945313!3d34.53621!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c3654c1c43b7d3%3A0x0!2sVictorville%2C%20CA!5e0!3m2!1sen!2sus!4v1700000000000"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3304.5!2d-117.355!3d34.5147!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sAlpha%20Omega%20Fitness%2C%2012284%20Industrial%20Blvd%2C%20Victorville%2C%20CA%2092395!5e0!3m2!1sen!2sus!4v1700000000000"
                   width="100%"
                   height="100%"
                   style={{
@@ -114,9 +114,9 @@ export default function Footer() {
                   LOCATION
                 </div>
                 <p className="leading-relaxed text-fg">
-                  Victorville, CA
+                  12284 Industrial Blvd, Suite B-6
                   <br />
-                  San Bernardino County
+                  Victorville, CA 92395
                 </p>
               </div>
 
@@ -139,12 +139,26 @@ export default function Footer() {
                 </div>
                 <div className="space-y-1.5">
                   <a
+                    href="tel:+17605964469"
+                    className="block text-sm text-fg transition-colors hover:text-accent"
+                  >
+                    (760) 596-4469 →
+                  </a>
+                  <a
                     href="https://aofithd.com"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block text-sm text-fg transition-colors hover:text-accent"
                   >
                     aofithd.com →
+                  </a>
+                  <a
+                    href="https://www.instagram.com/aofithd/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-sm text-fg transition-colors hover:text-accent"
+                  >
+                    @aofithd · Instagram →
                   </a>
                   <a
                     href="#trial"
