@@ -97,8 +97,8 @@ export default function Programs() {
         className="relative min-h-[175vh] overflow-hidden bg-canvas"
         initial={reducedMotion || isMobile ? { y: 0 } : { y: "100vh" }}
         whileInView={{ y: 0 }}
-        viewport={{ once: true, margin: "-15% 0px -40% 0px" }}
-        transition={{ duration: 1.8, ease: [0.4, 0, 0.2, 1] }}
+        viewport={{ once: true, margin: "-5% 0px -85% 0px" }}
+        transition={{ duration: 2.7, ease: [0.4, 0, 0.2, 1] }}
       >
         <div className="sticky top-0 flex h-screen flex-col px-6 py-12 md:px-12 md:py-16">
           {/* Top-left eyebrow */}
@@ -198,15 +198,15 @@ function ProgramCard({
   return (
     <motion.div
       {...fadeUp}
-      className={`relative flex h-full flex-col border p-6 md:p-7 ${
+      className={`group relative flex h-full cursor-default flex-col border p-6 transition-all duration-300 hover:-translate-y-2 md:p-7 ${
         program.emphasized
-          ? "border-accent bg-canvas-elevated"
-          : "border-fg/15 bg-canvas"
+          ? "border-accent bg-canvas-elevated hover:border-fg"
+          : "border-fg/15 bg-canvas hover:border-accent"
       }`}
     >
       {/* Affiliate badge if emphasized */}
       {program.badge && (
-        <div className="absolute -top-3 left-6 bg-accent px-3 py-1">
+        <div className="absolute -top-3 left-6 bg-accent px-3 py-1 transition-colors duration-300 group-hover:bg-fg">
           <span className="font-mono text-[9px] font-bold uppercase tracking-[0.22em] text-canvas">
             {program.badge}
           </span>
@@ -225,8 +225,8 @@ function ProgramCard({
 
       {/* Display name */}
       <h3
-        className={`leading-[0.95] tracking-[-0.03em] ${
-          program.emphasized ? "text-accent" : "text-fg"
+        className={`leading-[0.95] tracking-[-0.03em] transition-colors duration-300 ${
+          program.emphasized ? "text-accent group-hover:text-fg" : "text-fg"
         }`}
         style={{
           fontFamily: "var(--font-display)",
@@ -247,8 +247,8 @@ function ProgramCard({
       <div className="mt-5 border-t border-fg/15 pt-5">
         <div className="flex items-baseline gap-2">
           <span
-            className={`leading-none ${
-              program.emphasized ? "text-accent" : "text-fg"
+            className={`leading-none transition-colors duration-300 ${
+              program.emphasized ? "text-accent group-hover:text-fg" : "text-fg"
             }`}
             style={{
               fontFamily: "var(--font-display)",
@@ -272,9 +272,11 @@ function ProgramCard({
               className="font-mono text-[10px] uppercase leading-relaxed tracking-[0.18em] text-fg-muted"
             >
               <span
-                className={
-                  program.emphasized ? "text-accent" : "text-fg-muted"
-                }
+                className={`transition-colors duration-300 ${
+                  program.emphasized
+                    ? "text-accent group-hover:text-fg"
+                    : "text-fg-muted"
+                }`}
               >
                 ·
               </span>{" "}
@@ -287,9 +289,9 @@ function ProgramCard({
       {/* CTA */}
       <a
         href="#trial"
-        className={`mt-5 inline-flex items-center justify-between gap-2 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.22em] transition-colors ${
+        className={`mt-5 inline-flex items-center justify-between gap-2 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.22em] transition-colors duration-300 ${
           program.emphasized
-            ? "bg-accent text-canvas hover:bg-fg"
+            ? "bg-accent text-canvas hover:bg-fg group-hover:bg-fg"
             : "border border-fg/30 text-fg hover:border-accent hover:text-accent"
         }`}
       >

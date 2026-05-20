@@ -37,8 +37,8 @@ export default function Footer() {
         className="relative overflow-hidden bg-canvas"
         initial={reducedMotion || isMobile ? { y: 0 } : { y: "100vh" }}
         whileInView={{ y: 0 }}
-        viewport={{ once: true, margin: "-15% 0px -40% 0px" }}
-        transition={{ duration: 1.8, ease: [0.4, 0, 0.2, 1] }}
+        viewport={{ once: true, margin: "-5% 0px -85% 0px" }}
+        transition={{ duration: 2.7, ease: [0.4, 0, 0.2, 1] }}
       >
         <div className="relative px-6 py-16 md:px-12 md:py-20">
           {/* Top-left eyebrow */}
@@ -63,7 +63,7 @@ export default function Footer() {
 
           <motion.p
             {...fadeUp(0.2)}
-            className="mt-3 font-mono text-xs uppercase tracking-[0.22em] text-fg-muted"
+            className="mt-8 font-mono text-xs uppercase tracking-[0.22em] text-fg-muted"
           >
             BOOT CAMP · HYROX · PERSONAL TRAINING · VICTORVILLE
           </motion.p>
