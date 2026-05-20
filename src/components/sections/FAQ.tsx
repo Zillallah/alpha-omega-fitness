@@ -37,12 +37,12 @@ const faqs: FAQItem[] = [
   {
     question: "Can I try before committing?",
     answer:
-      "Five days free. No credit card. After that, Part-Time runs $99/month or full Group Training at $109/month with multi-month savings ($299 for 3 months, $589 for 6, $1,149 for the year).",
+      "Five days free. No credit card. After that, Part-Time runs $99/month or full Group Training at $109/month with multi-month savings ($299 for 3 months, $589 for 6, $1,149 for the year). Claim it via the trial form below.",
   },
   {
     question: "What's the HYROX class about?",
     answer:
-      "We're an Official HYROX Gym Affiliate. Saturday 8 AM, race-format: 8 rounds of 1km runs paired with 8 functional stations (sled push, burpee broad jumps, sandbag lunges, wall balls, etc.). Included with any group membership.",
+      "We're an Official HYROX Gym Affiliate. Saturday 8 AM, race-format: 8 rounds of 1km runs paired with 8 functional stations (sled push, burpee broad jumps, sandbag lunges, wall balls, etc.). Included with any group membership. Reserve your spot at clients.mindbodyonline.com/classic/ws?studioid=5748844 →",
   },
   {
     question: "Where are you located?",

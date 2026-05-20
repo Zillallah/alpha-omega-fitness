@@ -145,6 +145,14 @@ export default function Footer() {
                     (760) 596-4469 →
                   </a>
                   <a
+                    href="https://clients.mindbodyonline.com/classic/ws?studioid=5748844&stype=43&prodid=100006"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-sm text-fg transition-colors hover:text-accent"
+                  >
+                    Book a class →
+                  </a>
+                  <a
                     href="https://aofithd.com"
                     target="_blank"
                     rel="noopener noreferrer"
