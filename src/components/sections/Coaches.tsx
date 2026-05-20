@@ -153,7 +153,7 @@ function CoachEclipse({ data, zIndex }: { data: CoachData; zIndex: number }) {
                   alt={`${data.firstName}${data.lastName ? ` ${data.lastName}` : ""}, ${data.role}`}
                   fill
                   sizes="(max-width: 768px) 100vw, 40vw"
-                  className="object-cover object-top"
+                  style={{ objectFit: "cover", objectPosition: "50% 12%" }}
                   priority
                 />
                 {/* Subject label */}
