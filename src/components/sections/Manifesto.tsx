@@ -36,10 +36,10 @@ export default function Manifesto() {
     [0, 0.18, 0.18, 0.08]
   );
 
-  // Statement 1 — "This isn't a gym."
-  const s1Opacity = useTransform(scrollYProgress, [0.05, 0.15], [0, 1]);
-  const s1Y = useTransform(scrollYProgress, [0.05, 0.15], [40, 0]);
-  const s1Strike = useTransform(scrollYProgress, [0.12, 0.2], [0, 1]);
+  // Statement 1 — "This isn't a gym." (delayed so video gets solo airtime first)
+  const s1Opacity = useTransform(scrollYProgress, [0.18, 0.28], [0, 1]);
+  const s1Y = useTransform(scrollYProgress, [0.18, 0.28], [40, 0]);
+  const s1Strike = useTransform(scrollYProgress, [0.25, 0.33], [0, 1]);
 
   // Statement 2 — "It's a system."
   const s2Opacity = useTransform(scrollYProgress, [0.3, 0.4], [0, 1]);

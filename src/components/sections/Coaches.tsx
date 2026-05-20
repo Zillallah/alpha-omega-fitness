@@ -109,7 +109,7 @@ function CoachEclipse({ data, zIndex }: { data: CoachData; zIndex: number }) {
         initial={reducedMotion || isMobile ? { y: 0 } : { y: "100vh" }}
         whileInView={{ y: 0 }}
         viewport={{ once: true, margin: "-5% 0px -85% 0px" }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 2.5, ease: [0.05, 0.7, 0.1, 1] }}
       >
         {/* Top-right section number */}
         <div className="absolute right-8 top-8 z-30 flex items-center gap-2.5 md:right-12">
